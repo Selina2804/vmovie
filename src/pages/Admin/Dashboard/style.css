@@ -1,6 +1,4 @@
-/* ============================== */
-/* 🎬 DASHBOARD TỔNG QUAN */
-/* ============================== */
+/*DASHBOARD TỔNG QUAN */
 .dashboard {
   padding: 40px;
   color: #000;
@@ -22,9 +20,7 @@
   margin-bottom: 30px;
 }
 
-/* ============================== */
-/* 🧮 HÀNG CHỨA THẺ THỐNG KÊ */
-/* ============================== */
+/*HÀNG CHỨA THẺ THỐNG KÊ */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -32,9 +28,7 @@
   justify-content: center;
 }
 
-/* ============================== */
-/* 📊 THẺ THỐNG KÊ */
-/* ============================== */
+/*THẺ THỐNG KÊ */
 .stat-card {
   background: #828282;
   border-radius: 12px;
@@ -52,9 +46,7 @@
   background: #1a1a1a;
 }
 
-/* ============================== */
-/* 🧾 NỘI DUNG TRONG THẺ */
-/* ============================== */
+/*NỘI DUNG TRONG THẺ */
 .stat-title {
   color: #aaa;
   font-size: 15px;
@@ -78,9 +70,7 @@
   justify-content: center;
 }
 
-/* ============================== */
-/* 📱 RESPONSIVE */
-/* ============================== */
+/*RESPONSIVE */
 @media (max-width: 600px) {
   .stat-value {
     font-size: 22px;

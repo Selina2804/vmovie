@@ -1,73 +1,63 @@
 import { create } from "zustand";
 import axios from "axios";
 
-// Địa chỉ của Mock API
 const BASE_URL = "https://68faff8894ec96066024411b.mockapi.io";
 
-// Tạo store với zustand
 export const useAuth = create((set) => ({
-  user: JSON.parse(localStorage.getItem("user")) || null, // Lấy thông tin người dùng từ localStorage nếu có
+  user: JSON.parse(localStorage.getItem("user")) || null, 
 
-  // Đăng ký user mới
+  
   register: async (email, password, username) => {
     try {
-      // Gửi yêu cầu POST đến MockAPI để tạo tài khoản mới, mặc định role là "user"
       const { data } = await axios.post(`${BASE_URL}/account`, {
         email,
         password,
         username,
-        role: "user", // Mặc định là "user", không cho phép đăng ký admin
+        role: "user", 
       });
 
-      // Lưu thông tin người dùng vào localStorage
       localStorage.setItem("user", JSON.stringify(data));
 
-      // Cập nhật trạng thái của store
       set({ user: data });
 
-      return data; // Trả về dữ liệu người dùng để xử lý sau (nếu cần)
+      return data;
     } catch (error) {
       console.error("Đăng ký thất bại: ", error);
-      throw new Error("Đăng ký thất bại"); // Đẩy lỗi ra để thông báo cho người dùng
+      throw new Error("Đăng ký thất bại"); 
     }
   },
 
-  // Đăng nhập
   login: async (email, password) => {
     try {
-      // Sử dụng đúng endpoint /account thay vì /users
+
       const { data } = await axios.get(`${BASE_URL}/account`);
       
-      // Log dữ liệu trả về từ API để kiểm tra
+  
       console.log("Dữ liệu người dùng từ Mock API: ", data);
 
-      // Tìm tài khoản đúng email và mật khẩu (so sánh không phân biệt chữ hoa chữ thường)
       const foundUser = data.find(
         (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
       );
 
-      console.log("Người dùng tìm thấy: ", foundUser); // Kiểm tra người dùng đã tìm thấy trong API
+      console.log("Người dùng tìm thấy: ", foundUser); 
 
       if (!foundUser) throw new Error("Sai email hoặc mật khẩu");
 
-      // Lưu thông tin người dùng vào localStorage và cập nhật trạng thái trong zustand
       localStorage.setItem("user", JSON.stringify(foundUser));
       set({ user: foundUser });
 
       return foundUser;
     } catch (error) {
       console.error("Đăng nhập thất bại: ", error);
-      throw new Error("Sai email hoặc mật khẩu"); // Đẩy lỗi ra để hiển thị thông báo
+      throw new Error("Sai email hoặc mật khẩu"); 
     }
   },
 
-  // Đăng xuất
   logout: () => {
-    localStorage.removeItem("user"); // Xóa thông tin người dùng khỏi localStorage
-    set({ user: null }); // Đặt lại state về null
+    localStorage.removeItem("user"); 
+    set({ user: null }); 
   },
 
-  // Cập nhật thông tin người dùng
   updateUser: async (id, updates) => {
     try {
       const { data } = await axios.put(`${BASE_URL}/account/${id}`, updates);
@@ -82,7 +72,6 @@ export const useAuth = create((set) => ({
     }
   },
 
-  // Cập nhật tên người dùng
   updateUsername: async (newName) => {
     set((state) => {
       if (!state.user) return {};

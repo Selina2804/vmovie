@@ -1,0 +1,313 @@
+/*QUẢN LÝ TÀI KHOẢN */
+.account-manager {
+  width: 100%;
+  padding: 40px;
+  background: #fff;
+  color: #000;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+/*THANH THÔNG TIN TRÊN */
+.top-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.user-count {
+  font-size: 15px;
+  color: #444;
+}
+.user-count span {
+  font-weight: 600;
+  color: #2563eb;
+}
+/*NÚT THÊM NGƯỜI DÙNG */
+.btn-add {
+  padding: 12px 26px;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.15s ease, transform 0.1s;
+}
+.btn-add:hover {
+  background: #1e40af;
+  transform: scale(1.03);
+}
+/*BẢNG DANH SÁCH NGƯỜI DÙNG */
+.account-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #111;
+  color: #f5f5f5;
+}
+
+th,
+td {
+  padding: 12px 14px;
+  text-align: center;
+  border-bottom: 1px solid #222;
+  word-wrap: break-word;
+}
+
+th {
+  background: #1c1c1c;
+  color: #bbb;
+  font-weight: 500;
+}
+
+tr:hover {
+  background: #1f1f1f;
+  transition: background 0.2s ease;
+}
+/*HÀNH ĐỘNG */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-edit,
+.btn-delete,
+.btn-cancel {
+  padding: 7px 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  transition: all 0.15s ease;
+}
+
+.btn-edit {
+  background: #16a34a;
+}
+.btn-edit:hover {
+  background: #15803d;
+}
+
+.btn-delete {
+  background: #dc2626;
+}
+.btn-delete:hover {
+  background: #b91c1c;
+}
+
+.btn-cancel {
+  background: #6b7280;
+}
+.btn-cancel:hover {
+  background: #4b5563;
+}
+/*KHÔNG CÓ DỮ LIỆU */
+.no-data {
+  text-align: center;
+  padding: 30px;
+  color: #777;
+  font-size: 15px;
+}
+/*MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.account-modal {
+  background: #1a1a1a;
+  width: 400px;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 26px 30px;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/*FORM */
+.form-add-edit {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #ccc;
+  margin-bottom: 5px;
+}
+
+.form-add-edit input,
+.form-add-edit select {
+  background: #0f0f0f;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #f5f5f5;
+  font-size: 14px;
+  transition: border 0.15s ease;
+  height: 38px;
+}
+
+.form-add-edit input:focus,
+.form-add-edit select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+/*LỖI FORM */
+.error-message {
+  color: #f87171;
+  font-size: 13px;
+  background: #7f1d1d33;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+  animation: fadeIn 0.2s ease-in;
+}
+
+input.error {
+  border-color: #f87171;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/*ROLE BADGE */
+.role-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.role-badge.user {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+.role-badge.admin {
+  background: #166534;
+  color: #dcfce7;
+}
+/*RESPONSIVE */
+@media (max-width: 900px) {
+  .top-info {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  table {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  td {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .btn-add {
+    width: 100%;
+  }
+
+  .account-modal {
+    width: 90%;
+    padding: 20px;
+  }
+}
+/*NÚT LƯU & HỦY - ĐẸP HƠN */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.form-actions button {
+  min-width: 90px;
+  height: 40px;
+  padding: 0 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Nút Thêm / Cập nhật */
+.btn-add {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.4);
+}
+.btn-add:hover {
+  background: linear-gradient(135deg, #1e40af, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.55);
+}
+
+/* Nút Hủy */
+.btn-cancel {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(107, 114, 128, 0.3);
+}
+.btn-cancel:hover {
+  background: linear-gradient(135deg, #4b5563, #374151);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(75, 85, 99, 0.45);
+}
+
+/* Hiệu ứng click */
+.form-actions button:active {
+  transform: scale(0.96);
+  box-shadow: none;
+}

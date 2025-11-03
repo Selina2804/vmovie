@@ -11,7 +11,7 @@
   margin-bottom: 20px;
 }
 
-/* ✅ Thanh lọc đẹp hơn */
+/*Thanh lọc */
 .filter-wrapper {
   display: flex;
   flex-direction: column;
@@ -63,13 +63,11 @@
   color: #fff;
 }
 
-/* ✅ Danh sách phim */
+/*Danh sách phim */
 .movie-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 18px;
-
-  /* ✅ Căn giữa khi không có phim */
   min-height: 200px;
   place-items: center;
 }
@@ -110,7 +108,7 @@
   color: #b0b0b0;
 }
 
-/* ✅ Nút xem thêm */
+/*Nút xem thêm */
 .see-more-container {
   text-align: center;
   margin-top: 20px;
@@ -131,15 +129,15 @@
   background-color: #ff8888;
 }
 
-/* ✅ Dòng chữ khi không có phim */
+/*Dòng chữ khi không có phim */
 .no-results {
   color: #ccc;
   font-size: 18px;
   text-align: center;
-  grid-column: 1 / -1; /* Chiếm toàn bộ cột để căn giữa ngang */
+  grid-column: 1 / -1; 
 }
 
-/* ✅ Responsive */
+/*Responsive */
 @media (max-width: 1024px) {
   .movie-grid {
     grid-template-columns: repeat(4, 1fr);

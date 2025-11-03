@@ -1,4 +1,4 @@
-/* 🎬 HEADER CHÍNH */
+/*HEADER CHÍNH */
 .header {
   display: flex;
   justify-content: space-between;
@@ -21,7 +21,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* 🎬 LEFT */
+/*LEFT */
 .header-left {
   display: flex;
   align-items: center;
@@ -37,7 +37,7 @@
   cursor: pointer;
 }
 
-/* 🎬 SEARCH */
+/*SEARCH */
 .search-bar {
   position: relative;
   display: flex;
@@ -72,7 +72,7 @@
   font-size: 18px;
 }
 
-/* 🎬 NAVIGATION */
+/*NAVIGATION */
 .nav {
   display: flex;
   align-items: center;
@@ -91,7 +91,7 @@
   align-items: center;
 }
 
-/* 🔹 Bỏ gạch dưới khi hover */
+/*Bỏ gạch dưới khi hover */
 .nav a::after {
   display: none;
 }
@@ -100,7 +100,7 @@
   color: #ffcc00;
 }
 
-/* 🎬 DROPDOWN (Thể loại & Quốc gia) */
+/*DROPDOWN (Thể loại & Quốc gia) */
 .dropdown-click {
   position: relative;
   display: flex;
@@ -113,7 +113,7 @@
   transition: color 0.3s ease;
 }
 
-/* 🔹 Bỏ gạch dưới khi hover dropdown */
+/*Bỏ gạch dưới khi hover dropdown */
 .dropdown-click::after {
   display: none;
 }
@@ -128,7 +128,7 @@
   gap: 4px;
 }
 
-/* 🔹 Dropdown menu nền tối */
+/*Dropdown menu nền tối */
 .dropdown-menu-large {
   position: absolute;
   top: 170%;
@@ -148,7 +148,7 @@
   color: #ffffff;
 }
 
-/* 🔹 Dropdown item (mục trong danh sách thể loại & quốc gia) */
+/*Dropdown item (mục trong danh sách thể loại & quốc gia) */
 .dropdown-item {
   background: rgba(255, 255, 255, 0.05);
   color: #ffffff !important;
@@ -159,14 +159,13 @@
   cursor: pointer;
 }
 
-/* ✅ FIX màu hover quá sáng */
 .dropdown-menu-large .dropdown-item:hover {
-  background: rgba(120, 120, 120, 0.35) !important; /* xám nhạt dịu hơn */
+  background: rgba(120, 120, 120, 0.35) !important; 
   color: #ffcc00 !important;
   transform: translateY(-2px);
 }
 
-/* 🎬 USER MENU */
+/*USER MENU */
 .header-right {
   display: flex;
   align-items: center;
@@ -237,7 +236,7 @@
   background: #333;
 }
 
-/* 🎬 GỢI Ý TÌM KIẾM */
+/*GỢI Ý TÌM KIẾM */
 .search-suggestion-box {
   position: absolute;
   top: 48px;
@@ -355,7 +354,7 @@
   text-align: center;
 }
 
-/* 🎬 MOBILE MENU + ICON */
+/*MOBILE MENU + ICON */
 .mobile-menu-icon {
   display: none;
   flex-direction: column;
@@ -430,7 +429,7 @@
   color: #ffcc00;
 }
 
-/* 🎯 THÊM GẠCH PHÂN CÁCH DƯỚI “THỂ LOẠI” VÀ “QUỐC GIA” */
+/*THÊM GẠCH PHÂN CÁCH DƯỚI “THỂ LOẠI” VÀ “QUỐC GIA” */
 .mobile-dropdown {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 8px;
@@ -500,7 +499,7 @@
   transform: translateY(-2px);
 }
 
-/* 🎬 RESPONSIVE FIX */
+/*RESPONSIVE */
 .header-right.hidden {
   display: none !important;
 }

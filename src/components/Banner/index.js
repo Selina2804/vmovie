@@ -1,56 +1,67 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./style.css";
 import { FaPlay, FaHeart } from "react-icons/fa";
+import { useMovies } from "../../context/MovieContext";
+import { useNavigate } from "react-router-dom";
 
 function Banner() {
+  const { allMovies } = useMovies();
+  const [index, setIndex] = useState(0);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!allMovies.length) return;
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % allMovies.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [allMovies.length]);
+
+  if (!allMovies.length) return null;
+
+  const movie = allMovies[index];
+
   return (
     <section
-      className="banner"
+      className="banner fade"
       style={{
-        backgroundImage:
-          "url('https://public.laylo.com/resized_drop_images/20251010-a1f3049fd818_640.jpeg')", 
+        backgroundImage: `url('${movie.banner || movie.image}')`,
       }}
     >
       <div className="overlay"></div>
 
-      <div className="banner-info">
-        <h1 className="banner-title">Yến Ngộ Vĩnh An</h1>
-        <p className="banner-subtitle">Yummy Yummy Yummy</p>
+      <div className="banner-info animate-content">
+        <h1 className="banner-title">{movie.title}</h1>
+        <p className="banner-subtitle">{movie.engTitle}</p>
 
         <div className="banner-tags">
-          <span className="imdb">IMDb 7.2</span>
-          <span>4K</span>
-          <span>Phim Bộ</span>
-          <span>2025</span>
-          <span>32 tập</span>
+          <span>{movie.country}</span>
+          <span>{movie.duration}</span>
+          <span>{movie.year}</span>
         </div>
 
         <div className="banner-genres">
-          <span>Tình Cảm</span>
-          <span>Tâm Lý</span>
-          <span>Hài</span>
-          <span>Cổ Trang</span>
-          <span>Chính Kịch</span>
-          <span>Giả Tưởng</span>
+          {movie.genre?.split(",").map((g, i) => (
+            <span key={i}>{g.trim()}</span>
+          ))}
         </div>
 
-        <p className="banner-desc">
-          Một cuộc gặp gỡ tình cờ đưa gia đình Thẩm đến thành phố Vĩnh An, nơi họ
-          gặp Lâm Yên, một quan tòa. Hành trình của họ mở ra một câu chuyện kỳ thú
-          về ẩm thực, truyền thống địa phương và một mối tình bất ngờ.
-        </p>
+        <p className="banner-desc">{movie.description}</p>
 
         <div className="banner-buttons">
-          <button className="play-btn">
+          <button
+            className="play-btn"
+            onClick={() => navigate(`/xem-phim/${movie.id}`)}
+          >
             <FaPlay /> Xem phim
           </button>
+
           <button className="fav-btn">
             <FaHeart />
           </button>
         </div>
       </div>
     </section>
-    
   );
 }
 

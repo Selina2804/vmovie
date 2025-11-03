@@ -1,4 +1,4 @@
-/* ====== Layout tổng ====== */
+/*Layout tổng */
 .admin-layout {
   display: flex;
   height: 100vh;
@@ -22,7 +22,7 @@
   margin-top: 24px;
 }
 
-/* ====== Sidebar ====== */
+/*Sidebar */
 .admin-sidenav {
   width: 240px;
   background: #ffffff;
@@ -60,7 +60,6 @@
   margin-top: 40px;
 }
 
-/* Các link chung trong sidebar */
 .sidenav-menu a {
   color: #1f2937;
   text-decoration: none;
@@ -80,9 +79,9 @@
   color: #1d4ed8;
 }
 
-/* ====== Navbar ====== */
+/*Navbar */
 .admin-navbar {
-  background: #ffffff;
+  background: rgb(163, 160, 160);
   padding: 14px 24px;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
@@ -119,7 +118,7 @@
   background: #e5e7eb;
 }
 
-/* ====== Avatar + Dropdown ====== */
+/*Avatar + Dropdown */
 .navbar-avatar-wrapper {
   position: relative;
 }
@@ -133,12 +132,12 @@
   border: 1px solid #ddd;
 }
 
-/* Dropdown — KHÔNG có hiệu ứng hất lên, chỉ đổi màu hover */
+/*Dropdown */
 .avatar-dropdown {
   position: absolute;
   top: 42px;
   right: 0;
-  background: #fff;
+  background: #333;
   border: 1px solid #ddd;
   border-radius: 6px;
   width: 130px;
@@ -163,15 +162,15 @@
 }
 
 .dropdown-item.logout {
-  color: #dc2626;
+  color: #ee0808;
   font-weight: 500;
 }
 
 .dropdown-item.logout:hover {
-  background: #fee2e2;
+  background: #ffe8e8;
 }
 
-/* ====== Responsive ====== */
+/*Responsive */
 @media (max-width: 1024px) {
   .admin-sidenav {
     display: none;

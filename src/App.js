@@ -17,7 +17,7 @@ import "./App.css";
 function App() {
   const location = useLocation();
 
-  // Xác định có phải đang ở trang admin không
+
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
@@ -27,7 +27,7 @@ function App() {
 
       <div className="main-content">
         <Routes>
-          {/* ---- Trang người dùng ---- */}
+          {/*Trang người dùng */}
           <Route path="/" element={<Home />} />
           <Route path="/danh-sach" element={<AllMovies />} />
           <Route path="/thong-tin/:id" element={<MovieDetail />} />
@@ -35,7 +35,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* ---- Trang Admin riêng biệt ---- */}
+          {/*Trang Admin riêng biệt */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="movies" element={<ManageMovies />} />
             <Route path="accounts" element={<ManageAccounts />} />

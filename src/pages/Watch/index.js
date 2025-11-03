@@ -19,7 +19,7 @@ const WatchMovie = () => {
     axios
       .get(`https://68faff8894ec96066024411b.mockapi.io/movies/${id}`)
       .then((response) => {
-        setMovie(response.data); // Cập nhật phim tìm được
+        setMovie(response.data);
         setLoading(false);
       })
       .catch((err) => {

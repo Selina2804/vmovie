@@ -9,7 +9,7 @@ import MovieManager from "./Movie";
 import AccountManager from "./Account";
 import { useAuth } from "../../store/useAuth";
 
-/* ================= SIDEBAR ================= */
+/*SIDEBAR */
 function Sidebar({ onMenuChange, active }) {
   const navigate = useNavigate();
   const handleGoHome = () => navigate("/");
@@ -41,12 +41,12 @@ function Sidebar({ onMenuChange, active }) {
   );
 }
 
-/* ================= NAVBAR ================= */
+/*NAVBAR */
 function Navbar({ title }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-  const { logout } = useAuth(); // dùng chung với Header
+  const { logout } = useAuth(); 
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -60,8 +60,8 @@ function Navbar({ title }) {
 
   const handleLogout = () => {
     if (window.confirm("Bạn có chắc muốn đăng xuất không?")) {
-      localStorage.removeItem("user"); // xóa admin
-      logout(); // logout user context → Header cũng logout
+      localStorage.removeItem("user");
+      logout(); 
       navigate("/login");
     }
   };
@@ -104,7 +104,7 @@ function Navbar({ title }) {
   );
 }
 
-/* ================= MAIN ADMIN ================= */
+/*MAIN ADMIN */
 export default function AdminLayout() {
   const [activePage, setActivePage] = useState("dashboard");
 
@@ -126,7 +126,7 @@ export default function AdminLayout() {
         <Navbar title={pageTitle} />
         {PageContent}
         <footer className="admin-footer">
-          © {new Date().getFullYear()} — Movie Admin Dashboard 🎬
+          © {new Date().getFullYear()} — Movie Admin Dashboard 
         </footer>
       </main>
     </div>

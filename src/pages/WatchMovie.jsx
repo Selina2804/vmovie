@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import movieApi from "../api/movieApi";  // Import mock API đã cập nhật
+import movieApi from "../api/movieApi";  
 
 const WatchMovie = () => {
   const { id } = useParams();
@@ -8,11 +8,10 @@ const WatchMovie = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Gọi API để lấy danh sách phim và tìm phim theo id
     const fetchMovies = async () => {
       try {
-        const movies = await movieApi.getAll();  // Lấy danh sách phim từ MockAPI
-        const selectedMovie = movies.find((m) => m.id === parseInt(id));  // Tìm phim theo ID
+        const movies = await movieApi.getAll();  
+        const selectedMovie = movies.find((m) => m.id === parseInt(id));  
         setMovie(selectedMovie);
         setLoading(false);
       } catch (error) {

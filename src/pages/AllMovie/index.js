@@ -30,7 +30,7 @@ const AllMovies = () => {
       });
   }, []);
 
-  // --- DYNAMIC GENRES & COUNTRIES ---
+  // DYNAMIC GENRES & COUNTRIES
   const genres = [...new Set(allMovies.flatMap((m) => m.genre.split(", ").map((g) => g.trim())))];
   const countries = [...new Set(allMovies.map((m) => m.country))];
 

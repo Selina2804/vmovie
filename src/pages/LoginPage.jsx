@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../store/useAuth"; // Zustand store
+import { useAuth } from "../store/useAuth"; 
 import "../styles/Auth.css";
 import loginbanner from "../assets/banner-login.jpg";
 
 const LoginPage = () => {
-  const auth = useAuth(); // Zustand store auth
+  const auth = useAuth();
   const navigate = useNavigate();
 
   const {
@@ -18,23 +18,19 @@ const LoginPage = () => {
   // Lắng nghe sự thay đổi của user trong zustand
   useEffect(() => {
     if (auth.user) {
-      // Nếu người dùng đã đăng nhập, điều hướng theo quyền
       if (auth.user.role === "admin") {
-        navigate("/admin"); // Điều hướng đến trang quản trị cho admin
+        navigate("/admin");
       } else {
-        navigate("/"); // Điều hướng đến trang chủ cho người dùng bình thường
+        navigate("/");
       }
     }
-  }, [auth.user, navigate]); // Phụ thuộc vào sự thay đổi của user và navigate
+  }, [auth.user, navigate]);
 
   const onSubmit = async (data) => {
     try {
       // Đăng nhập và cập nhật người dùng trong zustand
       await auth.login(data.email.trim(), data.password.trim());
-
-      // Sau khi đăng nhập thành công, điều hướng sẽ tự động qua useEffect
     } catch (err) {
-      // Hiển thị lỗi nếu đăng nhập thất bại
       alert(err.message || "Đăng nhập thất bại");
     }
   };
@@ -74,7 +70,7 @@ const LoginPage = () => {
             Chưa có tài khoản? <Link to="/register">Đăng ký</Link>
           </p>
 
-          {/* 🔹 Ghi chú tài khoản admin */}
+          {/*Ghi chú tài khoản admin */}
           <div
             className="admin-note"
             style={{

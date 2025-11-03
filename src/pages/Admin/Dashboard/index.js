@@ -15,7 +15,6 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Gọi API đồng thời (phim + tài khoản)
         const [moviesRes, usersRes] = await Promise.all([
           axios.get(`${BASE_URL}/movies`),
           axios.get(`${BASE_URL}/account`),
@@ -24,12 +23,10 @@ export default function Dashboard() {
         const movies = moviesRes.data || [];
         const users = usersRes.data || [];
 
-        // Đếm phim đang chiếu
         const nowShowing = movies.filter(
           (m) => m.status?.toLowerCase() === "đang chiếu"
         ).length;
 
-        // Tính trung bình đánh giá (nếu có rating)
         const avgRating =
           movies.length > 0
             ? (
@@ -56,7 +53,7 @@ export default function Dashboard() {
 
   return (
     <section className="dashboard">
-      <h2>🎬 Trang tổng quan</h2>
+      <h2>Trang tổng quan</h2>
       <p>Chào mừng bạn đến với bảng điều khiển quản trị hệ thống Movie!</p>
 
       <div className="stats-row">

@@ -1,39 +1,79 @@
+/* === FONT & TỔNG THỂ === */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500&display=swap');
+
 .banner {
-  height: 100vh;
+  position: relative;
+  height: 90vh;
   background-size: cover;
   background-position: center;
-  position: relative;
   display: flex;
-  align-items: center;
-  padding: 0 80px;
+  align-items: flex-end;
+  padding: 80px;
   color: #fff;
   font-family: "Poppins", sans-serif;
+  transition: background-image 1s ease-in-out;
+  filter: brightness(0.85);
+}
+
+.fade {
+  animation: fadeCycle 1s ease-in-out;
+}
+
+@keyframes fadeCycle {
+  from { opacity: 0; transform: scale(1.02); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.2));
   z-index: 1;
+  opacity: 0;
+  animation: fadeInOverlay 1.5s ease forwards;
 }
 
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 .banner-info {
   position: relative;
   z-index: 2;
-  max-width: 650px;
+  max-width: 700px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .banner-title {
-  font-size: 4rem;
-  font-weight: 600;
-  font-family: "Times New Roman", serif;
-  margin-bottom: 5px;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 4.5rem;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  text-shadow: 2px 4px 20px rgba(0, 0, 0, 0.7);
 }
 
 .banner-subtitle {
-  color: #ffcc00;
-  margin-bottom: 20px;
+  color: #e50914;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 25px;
   font-size: 1.2rem;
 }
 
@@ -47,7 +87,7 @@
 
 .banner-tags span,
 .banner-genres span {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -55,48 +95,76 @@
 
 .imdb {
   background: #ffcc00 !important;
-  color: black;
+  color: #000;
   font-weight: 600;
 }
 
 .banner-desc {
-  color: #ddd;
+  color: #ccc;
   margin-top: 15px;
-  line-height: 1.6;
+  line-height: 1.7;
   font-size: 1rem;
+  text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.6);
 }
 
 .banner-buttons {
   display: flex;
   gap: 15px;
-  margin-top: 25px;
+  margin-top: 30px;
 }
 
 .play-btn {
-  background: #ffcc00;
-  color: black;
+  background: #e50914;
+  color: #fff;
   border: none;
   border-radius: 30px;
-  padding: 10px 20px;
+  padding: 12px 25px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
+}
+
+.play-btn:hover {
+  background: #f40612;
+  transform: scale(1.05);
 }
 
 .fav-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
-  padding: 12px;
-  color: white;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.35s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+}
+.fav-btn:hover {
+  background: rgba(229, 9, 20, 0.85);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+  color: #fff;
+  box-shadow: 0 0 25px rgba(229, 9, 20, 0.6);
+  animation: heartPulse 0.6s ease-in-out;
+}
+.fav-btn:active {
+  transform: scale(0.9);
+  animation: heartPulse 0.4s ease-in-out;
+}
+@keyframes heartPulse {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  50% { transform: scale(0.95); }
+  75% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
 
-.play-btn:hover,
-.fav-btn:hover {
-  transform: scale(1.05);
-}

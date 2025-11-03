@@ -28,7 +28,7 @@ function Header() {
   const countryRef = useRef(null);
   const searchRef = useRef(null);
 
-  // 🔹 Lấy dữ liệu từ MockAPI
+  // Lấy dữ liệu phim từ MockAPI
   useEffect(() => {
     axios
       .get("https://68faff8894ec96066024411b.mockapi.io/movies")
@@ -42,14 +42,12 @@ function Header() {
       });
   }, []);
 
-  // 🔹 Xử lý scroll đổi màu header
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 🔹 Click ngoài để đóng dropdown / search
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -69,7 +67,6 @@ function Header() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // 🔹 Đóng menu khi phóng to cửa sổ
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 900) setIsMobileMenuOpen(false);
@@ -78,7 +75,6 @@ function Header() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 🔹 Xử lý tìm kiếm
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
@@ -108,7 +104,6 @@ function Header() {
     navigate(`/thong-tin/${movie.id}`);
   };
 
-  // 🔹 Lấy thể loại & quốc gia động
   const genres = [
     ...new Set(allMovies.flatMap((m) => m.genre.split(", ").map((g) => g.trim()))),
   ];
@@ -174,7 +169,7 @@ function Header() {
                   type="button"
                   className="see-all-btn"
                   onClick={() => {
-                    navigate("/danh-sach");
+                    navigate(`/danh-sach?search=${encodeURIComponent(query.trim())}`);
                     setSuggestions([]);
                     setQuery("");
                   }}

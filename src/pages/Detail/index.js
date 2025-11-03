@@ -4,7 +4,7 @@ import axios from "axios";
 import "./style.css";
 
 const MovieDetail = () => {
-  const { id } = useParams(); // lấy id từ URL (ví dụ /thong-tin/5)
+  const { id } = useParams(); 
   const navigate = useNavigate();
   
   const [movie, setMovie] = useState(null);
@@ -16,7 +16,7 @@ const MovieDetail = () => {
     axios
       .get(`https://68faff8894ec96066024411b.mockapi.io/movies/${id}`)
       .then((response) => {
-        setMovie(response.data); // Cập nhật phim tìm được
+        setMovie(response.data);
         setLoading(false);
       })
       .catch((err) => {
