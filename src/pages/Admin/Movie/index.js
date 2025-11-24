@@ -20,7 +20,6 @@ export default function MovieManager() {
   const [errors, setErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [imagePreview, setImagePreview] = useState("");
 
   // Lấy danh sách phim
   useEffect(() => {
@@ -33,10 +32,10 @@ export default function MovieManager() {
       } catch (err) {
         console.error("Error fetching movies:", err);
         Swal.fire({
-          icon: 'error',
-          title: 'Lỗi!',
-          text: 'Không thể tải danh sách phim',
-          confirmButtonText: 'OK'
+          icon: "error",
+          title: "Lỗi!",
+          text: "Không thể tải danh sách phim",
+          confirmButtonText: "OK",
         });
       }
     };
@@ -46,11 +45,12 @@ export default function MovieManager() {
   // Validation rules
   const validateField = (name, value) => {
     let error = "";
-    
+
     switch (name) {
       case "title":
         if (!value.trim()) error = "Tên phim là bắt buộc";
-        else if (value.trim().length < 2) error = "Tên phim phải có ít nhất 2 ký tự";
+        else if (value.trim().length < 2)
+          error = "Tên phim phải có ít nhất 2 ký tự";
         break;
       case "genre":
         if (!value.trim()) error = "Thể loại là bắt buộc";
@@ -67,46 +67,40 @@ export default function MovieManager() {
         else {
           const yearNum = parseInt(value);
           const currentYear = new Date().getFullYear();
-          if (yearNum < 1900 || yearNum > currentYear + 1) 
+          if (yearNum < 1900 || yearNum > currentYear + 1)
             error = `Năm phải từ 1900 đến ${currentYear + 1}`;
         }
         break;
       case "image":
-        if (value.trim() && !/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif|bmp)(\?.*)?$/i.test(value))
-          error = "URL ảnh không hợp lệ. Phải là link ảnh (jpg, png, gif, webp, bmp)";
+        if (
+          value.trim() &&
+          !/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif|bmp|avif|svg)(\?.*)?$/i.test(
+            value
+          )
+        ) {
+          error =
+            "URL ảnh không hợp lệ. Chỉ hỗ trợ: jpg, jpeg, png, webp, gif, bmp, avif, svg";
+        }
         break;
       case "videoUrl":
-        if (value && !/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(value))
-          error = "URL video YouTube không hợp lệ";
+        if (value && !/^https?:\/\/.+/i.test(value))
+          error = "URL video không hợp lệ";
         break;
       default:
         break;
     }
-    
+
     return error;
   };
 
   // Real-time validation
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    setForm(prev => ({ ...prev, [name]: value }));
-    
-    if (name === "image" && value.trim()) {
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name]) {
       const error = validateField(name, value);
-      setErrors(prev => ({ ...prev, [name]: error }));
-      if (!error) {
-        setImagePreview(value);
-      }
-    } else {
-     
-      if (errors[name]) {
-        const error = validateField(name, value);
-        setErrors(prev => ({
-          ...prev,
-          [name]: error
-        }));
-      }
+      setErrors((prev) => ({ ...prev, [name]: error }));
     }
   };
 
@@ -114,99 +108,41 @@ export default function MovieManager() {
   const handleInputBlur = (e) => {
     const { name, value } = e.target;
     const error = validateField(name, value);
-    setErrors(prev => ({
-      ...prev,
-      [name]: error
-    }));
-
-    if (name === "image" && value.trim() && !error) {
-      setImagePreview(value);
-    }
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   // Validate all fields before submit
   const validateForm = () => {
     const newErrors = {};
     const requiredFields = ["title", "genre", "country", "duration", "year"];
-    
-    requiredFields.forEach(field => {
+
+    requiredFields.forEach((field) => {
       const error = validateField(field, form[field]);
       if (error) newErrors[field] = error;
     });
-    
+
     if (form.image) {
       const imageError = validateField("image", form.image);
       if (imageError) newErrors.image = imageError;
     }
-    
+
     if (form.videoUrl) {
       const videoError = validateField("videoUrl", form.videoUrl);
       if (videoError) newErrors.videoUrl = videoError;
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  // Handle image file upload
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setErrors(prev => ({
-        ...prev,
-        image: "File phải là hình ảnh (JPEG, PNG, GIF, WebP)"
-      }));
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setErrors(prev => ({
-        ...prev,
-        image: "Kích thước file không được vượt quá 5MB"
-      }));
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const imageDataUrl = event.target.result;
-      setForm(prev => ({ ...prev, image: imageDataUrl }));
-      setImagePreview(imageDataUrl);
-      setErrors(prev => ({ ...prev, image: "" }));
-    };
-    reader.onerror = () => {
-      setErrors(prev => ({
-        ...prev,
-        image: "Lỗi khi đọc file ảnh"
-      }));
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Remove image
-  const handleRemoveImage = () => {
-    setForm(prev => ({ ...prev, image: "" }));
-    setImagePreview("");
-    setErrors(prev => ({ ...prev, image: "" }));
-  };
-
-  // Load image from URL
-  const handleLoadImageFromUrl = () => {
-    if (form.image && !errors.image) {
-      setImagePreview(form.image);
-    }
   };
 
   // Thêm phim
   const handleAdd = async () => {
     if (!validateForm()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Thông tin không hợp lệ',
-        text: 'Vui lòng kiểm tra lại các trường thông tin được đánh dấu *',
-        confirmButtonText: 'OK'
+        icon: "warning",
+        title: "Thông tin không hợp lệ",
+        text: "Vui lòng kiểm tra lại các trường thông tin được đánh dấu *",
+        confirmButtonText: "OK",
       });
       return;
     }
@@ -219,21 +155,21 @@ export default function MovieManager() {
       setMovies([...movies, res.data]);
       resetForm();
       setShowModal(false);
-      
+
       Swal.fire({
-        icon: 'success',
-        title: 'Thành công!',
-        text: 'Đã thêm phim mới',
-        confirmButtonText: 'OK',
-        timer: 2000
+        icon: "success",
+        title: "Thành công!",
+        text: "Đã thêm phim mới",
+        confirmButtonText: "OK",
+        timer: 2000,
       });
     } catch (err) {
       console.error("Error adding movie:", err);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi!',
-        text: 'Không thể thêm phim',
-        confirmButtonText: 'OK'
+        icon: "error",
+        title: "Lỗi!",
+        text: "Không thể thêm phim",
+        confirmButtonText: "OK",
       });
     }
   };
@@ -241,7 +177,6 @@ export default function MovieManager() {
   // Chỉnh sửa phim
   const handleEdit = (movie) => {
     setForm(movie);
-    setImagePreview(movie.image);
     setIsEditing(true);
     setShowModal(true);
     setErrors({});
@@ -251,10 +186,10 @@ export default function MovieManager() {
   const handleUpdate = async () => {
     if (!validateForm()) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Thông tin không hợp lệ',
-        text: 'Vui lòng kiểm tra lại các trường thông tin được đánh dấu *',
-        confirmButtonText: 'OK'
+        icon: "warning",
+        title: "Thông tin không hợp lệ",
+        text: "Vui lòng kiểm tra lại các trường thông tin được đánh dấu *",
+        confirmButtonText: "OK",
       });
       return;
     }
@@ -268,38 +203,38 @@ export default function MovieManager() {
       resetForm();
       setIsEditing(false);
       setShowModal(false);
-      
+
       Swal.fire({
-        icon: 'success',
-        title: 'Thành công!',
-        text: 'Đã cập nhật thông tin phim',
-        confirmButtonText: 'OK',
-        timer: 2000
+        icon: "success",
+        title: "Thành công!",
+        text: "Đã cập nhật thông tin phim",
+        confirmButtonText: "OK",
+        timer: 2000,
       });
     } catch (err) {
       console.error("Error updating movie:", err);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi!',
-        text: 'Không thể cập nhật phim',
-        confirmButtonText: 'OK'
+        icon: "error",
+        title: "Lỗi!",
+        text: "Không thể cập nhật phim",
+        confirmButtonText: "OK",
       });
     }
   };
 
   // Xóa phim
   const handleDelete = async (id) => {
-    const movieToDelete = movies.find(m => m.id === id);
-    
+    const movieToDelete = movies.find((m) => m.id === id);
+
     const result = await Swal.fire({
-      title: 'Bạn có chắc chắn?',
+      title: "Bạn có chắc chắn?",
       text: `Bạn muốn xóa phim "${movieToDelete.title}"?`,
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Xóa',
-      cancelButtonText: 'Hủy'
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
     });
 
     if (result.isConfirmed) {
@@ -308,21 +243,21 @@ export default function MovieManager() {
           `https://68faff8894ec96066024411b.mockapi.io/movies/${id}`
         );
         setMovies(movies.filter((m) => m.id !== id));
-        
+
         Swal.fire({
-          icon: 'success',
-          title: 'Đã xóa!',
-          text: 'Phim đã được xóa thành công',
-          confirmButtonText: 'OK',
-          timer: 2000
+          icon: "success",
+          title: "Đã xóa!",
+          text: "Phim đã được xóa thành công",
+          confirmButtonText: "OK",
+          timer: 2000,
         });
       } catch (err) {
         console.error("Error deleting movie:", err);
         Swal.fire({
-          icon: 'error',
-          title: 'Lỗi!',
-          text: 'Không thể xóa phim',
-          confirmButtonText: 'OK'
+          icon: "error",
+          title: "Lỗi!",
+          text: "Không thể xóa phim",
+          confirmButtonText: "OK",
         });
       }
     }
@@ -341,7 +276,6 @@ export default function MovieManager() {
       videoUrl: "",
       description: "",
     });
-    setImagePreview("");
     setErrors({});
   };
 
@@ -351,13 +285,11 @@ export default function MovieManager() {
     setIsEditing(false);
   };
 
-  // Check if form has any errors
-  const hasErrors = Object.values(errors).some(error => error !== "");
+  const hasErrors = Object.values(errors).some((error) => error !== "");
 
   return (
     <div className="movie-manager">
       <h1>Quản Lý Danh Sách Phim</h1>
-
       <div className="top-bar">
         <button className="add-btn" onClick={() => setShowModal(true)}>
           Thêm phim mới
@@ -372,7 +304,6 @@ export default function MovieManager() {
         <div className="modal-overlay">
           <div className="modal">
             <h2>{isEditing ? "Chỉnh sửa phim" : "Thêm phim mới"}</h2>
-
             <form
               className="movie-form"
               onSubmit={(e) => e.preventDefault()}
@@ -382,28 +313,19 @@ export default function MovieManager() {
                 <div className="form-left">
                   {/* Preview image */}
                   <div className="image-preview-container">
-                    {(form.image || imagePreview) ? (
-                      <div className="image-with-actions">
-                        <img 
-                          src={form.image || imagePreview} 
-                          alt="Preview" 
-                          className="preview" 
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            setErrors(prev => ({ 
-                              ...prev, 
-                              image: "Không thể tải ảnh từ URL này" 
-                            }));
-                          }}
-                        />
-                        <button 
-                          type="button"
-                          className="remove-image-btn"
-                          onClick={handleRemoveImage}
-                        >
-                          ✕ Xóa ảnh
-                        </button>
-                      </div>
+                    {form.image ? (
+                      <img
+                        src={form.image}
+                        alt="Preview"
+                        className="preview"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          setErrors((prev) => ({
+                            ...prev,
+                            image: "Không thể tải ảnh từ URL này",
+                          }));
+                        }}
+                      />
                     ) : (
                       <div className="preview-placeholder">
                         <div className="placeholder-text">Chưa có ảnh poster</div>
@@ -411,28 +333,6 @@ export default function MovieManager() {
                       </div>
                     )}
                   </div>
-                  
-                  {/* File upload section */}
-                  <div className="file-upload-section">
-                    <label htmlFor="image-upload" className="file-upload-btn">
-                      Chọn ảnh từ máy tính
-                    </label>
-                    <input
-                      id="image-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      style={{ display: 'none' }}
-                    />
-                    <div className="upload-hint">
-                      Hoặc nhập URL ảnh từ internet bên dưới
-                    </div>
-                  </div>
-                  
-                  {/* Image error message */}
-                  {errors.image && (
-                    <div className="error-message image-error">{errors.image}</div>
-                  )}
                 </div>
 
                 <div className="form-right">
@@ -448,7 +348,7 @@ export default function MovieManager() {
                         value={form.title}
                         onChange={handleInputChange}
                         onBlur={handleInputBlur}
-                        className={errors.title ? 'error' : ''}
+                        className={errors.title ? "error" : ""}
                       />
                       {errors.title && (
                         <div className="error-message">{errors.title}</div>
@@ -463,7 +363,7 @@ export default function MovieManager() {
                         placeholder="Nhập tên tiếng Anh..."
                         value={form.engTitle}
                         onChange={handleInputChange}
-                        className={errors.engTitle ? 'error' : ''}
+                        className={errors.engTitle ? "error" : ""}
                       />
                       {errors.engTitle && (
                         <div className="error-message">{errors.engTitle}</div>
@@ -481,7 +381,7 @@ export default function MovieManager() {
                         value={form.genre}
                         onChange={handleInputChange}
                         onBlur={handleInputBlur}
-                        className={errors.genre ? 'error' : ''}
+                        className={errors.genre ? "error" : ""}
                       />
                       {errors.genre && (
                         <div className="error-message">{errors.genre}</div>
@@ -495,7 +395,7 @@ export default function MovieManager() {
                           Thời lượng <span className="required">*</span>
                         </label>
                         <input
-                          className={`small-input ${errors.duration ? 'error' : ''}`}
+                          className={`small-input ${errors.duration ? "error" : ""}`}
                           name="duration"
                           placeholder="VD: 120 phút"
                           value={form.duration}
@@ -511,7 +411,7 @@ export default function MovieManager() {
                           Năm <span className="required">*</span>
                         </label>
                         <input
-                          className={`small-input ${errors.year ? 'error' : ''}`}
+                          className={`small-input ${errors.year ? "error" : ""}`}
                           name="year"
                           placeholder="VD: 2024"
                           value={form.year}
@@ -527,7 +427,7 @@ export default function MovieManager() {
                           Quốc gia <span className="required">*</span>
                         </label>
                         <input
-                          className={`small-input ${errors.country ? 'error' : ''}`}
+                          className={`small-input ${errors.country ? "error" : ""}`}
                           name="country"
                           placeholder="Nhập quốc gia..."
                           value={form.country}
@@ -542,15 +442,15 @@ export default function MovieManager() {
 
                     {/* Image URL */}
                     <div className="input-group">
-                      <label className="field-label">URL ảnh từ internet</label>
-                        <input
-                          name="image"
-                          placeholder="https://example.com/image.jpg"
-                          value={form.image}
-                          onChange={handleInputChange}
-                          onBlur={handleInputBlur}
-                          className={errors.image ? 'error' : ''}
-                        />
+                      <label className="field-label">URL ảnh từ Internet</label>
+                      <input
+                        name="image"
+                        placeholder="https://example.com/image.jpg"
+                        value={form.image}
+                        onChange={handleInputChange}
+                        onBlur={handleInputBlur}
+                        className={errors.image ? "error" : ""}
+                      />
                       {errors.image && (
                         <div className="error-message">{errors.image}</div>
                       )}
@@ -558,13 +458,13 @@ export default function MovieManager() {
 
                     {/* Video URL */}
                     <div className="input-group">
-                      <label className="field-label">URL video YouTube</label>
+                      <label className="field-label">URL video (Cloud/YouTube)</label>
                       <input
                         name="videoUrl"
-                        placeholder="https://www.youtube.com/watch?v=..."
+                        placeholder="https://your-cloud-link/video.mp4"
                         value={form.videoUrl}
                         onChange={handleInputChange}
-                        className={errors.videoUrl ? 'error' : ''}
+                        className={errors.videoUrl ? "error" : ""}
                       />
                       {errors.videoUrl && (
                         <div className="error-message">{errors.videoUrl}</div>
@@ -579,7 +479,7 @@ export default function MovieManager() {
                         placeholder="Nhập mô tả về phim..."
                         value={form.description}
                         onChange={handleInputChange}
-                        className={errors.description ? 'error' : ''}
+                        className={errors.description ? "error" : ""}
                         rows="3"
                       />
                       {errors.description && (
@@ -590,16 +490,16 @@ export default function MovieManager() {
 
                   <div className="form-buttons">
                     {isEditing ? (
-                      <button 
-                        className={`save-btn ${hasErrors ? 'disabled' : ''}`} 
+                      <button
+                        className={`save-btn ${hasErrors ? "disabled" : ""}`}
                         onClick={handleUpdate}
                         disabled={hasErrors}
                       >
                         Cập nhật phim
                       </button>
                     ) : (
-                      <button 
-                        className={`save-btn ${hasErrors ? 'disabled' : ''}`} 
+                      <button
+                        className={`save-btn ${hasErrors ? "disabled" : ""}`}
                         onClick={handleAdd}
                         disabled={hasErrors}
                       >
@@ -617,7 +517,7 @@ export default function MovieManager() {
         </div>
       )}
 
-      {/*Danh sách phim */}
+      {/* Danh sách phim */}
       <div className="movie-table">
         <table>
           <thead>
@@ -639,7 +539,12 @@ export default function MovieManager() {
                 <td>{i + 1}</td>
                 <td>
                   {m.image && (
-                    <img src={m.image} alt={m.title} className="poster" />
+                    <img
+                      src={m.image}
+                      alt={m.title}
+                      className="poster"
+                      onError={(e) => (e.target.style.display = "none")}
+                    />
                   )}
                 </td>
                 <td className="title-cell">
@@ -652,12 +557,7 @@ export default function MovieManager() {
                 <td>{m.year}</td>
                 <td>
                   {m.videoUrl && (
-                    <a
-                      href={m.videoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="watch-link"
-                    >
+                    <a href={m.videoUrl} target="_blank" rel="noopener noreferrer" className="watch-link">
                       Xem
                     </a>
                   )}
@@ -667,10 +567,7 @@ export default function MovieManager() {
                     <button className="edit-btn" onClick={() => handleEdit(m)}>
                       Sửa
                     </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(m.id)}
-                    >
+                    <button className="delete-btn" onClick={() => handleDelete(m.id)}>
                       Xóa
                     </button>
                   </div>
