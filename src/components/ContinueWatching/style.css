@@ -1,0 +1,315 @@
+/* src/components/ContinueWatching/style.css */
+/* 📺 Continue Watching Styles */
+
+/* ========== SECTION ========== */
+.continue-watching-section {
+  margin: 40px 0;
+  padding: 0 20px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.section-count {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+/* ========== LOADING STATE ========== */
+.continue-watching-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========== SLIDER ========== */
+.continue-watching-slider {
+  position: relative;
+}
+
+.continue-watching-slider .swiper-button-prev,
+.continue-watching-slider .swiper-button-next {
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 50%;
+  color: #fff;
+}
+
+.continue-watching-slider .swiper-button-prev:after,
+.continue-watching-slider .swiper-button-next:after {
+  font-size: 18px;
+}
+
+/* ========== CARD ========== */
+.continue-watching-card {
+  display: block;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.continue-watching-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.continue-watching-card.removing {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+/* ========== IMAGE ========== */
+.cw-card-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  background: #000;
+}
+
+.cw-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.continue-watching-card:hover .cw-card-image img {
+  transform: scale(1.05);
+}
+
+/* ========== PLAY OVERLAY ========== */
+.cw-play-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.continue-watching-card:hover .cw-play-overlay {
+  opacity: 1;
+}
+
+.cw-play-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #000;
+  padding-left: 4px;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.continue-watching-card:hover .cw-play-icon {
+  transform: scale(1);
+}
+
+/* ========== PROGRESS INDICATOR (TOP RIGHT) ========== */
+.cw-progress-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 4px 10px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.cw-percentage {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ========== REMOVE BUTTON ========== */
+.cw-remove-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 32px;
+  height: 32px;
+  background: rgba(239, 68, 68, 0.9);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.continue-watching-card:hover .cw-remove-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cw-remove-btn:hover {
+  background: rgba(239, 68, 68, 1);
+  transform: scale(1.1);
+}
+
+/* ========== CARD INFO ========== */
+.cw-card-info {
+  padding: 16px;
+}
+
+.cw-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 6px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.4;
+  min-height: 44px;
+}
+
+.cw-episode {
+  font-size: 13px;
+  color: #667eea;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+/* ========== PROGRESS BAR ========== */
+.progress-bar-container {
+  margin: 12px 0 8px 0;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.progress-bar-text {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ========== META INFO ========== */
+.cw-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cw-time,
+.cw-last-watched {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cw-time {
+  font-weight: 500;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .continue-watching-section {
+    padding: 0 15px;
+    margin: 30px 0;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  .cw-title {
+    font-size: 15px;
+    min-height: 40px;
+  }
+
+  .cw-play-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .cw-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

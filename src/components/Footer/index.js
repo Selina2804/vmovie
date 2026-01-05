@@ -14,8 +14,8 @@ const Footer = () => {
         <div className="footer-links">
           <Link>Trang chủ</Link>
           <Link>Thể loại</Link>
-          <Link>Giới thiệu</Link>
-          <Link>Liên hệ</Link>
+          <Link to="/gioi-thieu">Giới thiệu</Link>
+          <Link to="/lien-he">Liên hệ</Link>
         </div>
 
         <div className="footer-copy">

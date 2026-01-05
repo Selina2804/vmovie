@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
-const BASE_URL = "https://68faff8894ec96066024411b.mockapi.io";
-
+// ✅ FIX: ĐỔI SANG PROJECT ĐÚNG
+const BASE_URL = "https://69538a2aa319a928023bc426.mockapi.io";
 
 function getUser() {
   const data = localStorage.getItem("user");
@@ -11,17 +12,45 @@ function getUser() {
 
 function setUser(user) {
   localStorage.setItem("user", JSON.stringify(user));
+  // ✅ Dispatch event để các component khác cập nhật
+  window.dispatchEvent(new StorageEvent('storage', {
+    key: 'user',
+    newValue: JSON.stringify(user)
+  }));
 }
 
 function clearUser() {
   localStorage.removeItem("user");
+  // ✅ Dispatch event khi xóa
+  window.dispatchEvent(new StorageEvent('storage', {
+    key: 'user',
+    newValue: null
+  }));
 }
 
 export function useCurrentUser() {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  // ✅ Query luôn lấy user mới nhất từ localStorage
+  const query = useQuery({
     queryKey: ["user"],
     queryFn: () => getUser(),
+    // ✅ Luôn lấy dữ liệu mới, không cache cũ
+    staleTime: 0,
+    gcTime: 0,
   });
+
+  // ✅ Lắng nghe thay đổi localStorage để tự động cập nhật
+  useEffect(() => {
+    const handleStorageChange = () => {
+      queryClient.invalidateQueries(["user"]);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [queryClient]);
+
+  return query;
 }
 
 export function useRegister() {
@@ -34,8 +63,8 @@ export function useRegister() {
         password,
         username,
         role: "user",
-        avatar:
-          "https://i.pinimg.com/736x/84/ab/e1/84abe170341d6b31c1ee14aa2eb37922.jpg",
+        avatar: "https://i.pravatar.cc/150?img=12",
+        favoriteMovies: [], // ✅ Khởi tạo mảng yêu thích rỗng
       });
 
       setUser(data);
@@ -47,7 +76,6 @@ export function useRegister() {
     },
   });
 }
-
 
 export function useLogin() {
   const queryClient = useQueryClient();
@@ -64,6 +92,11 @@ export function useLogin() {
 
       if (!foundUser) throw new Error("Sai email hoặc mật khẩu");
 
+      // ✅ Đảm bảo có favoriteMovies
+      if (!foundUser.favoriteMovies) {
+        foundUser.favoriteMovies = [];
+      }
+
       setUser(foundUser);
       return foundUser;
     },
@@ -74,13 +107,14 @@ export function useLogin() {
   });
 }
 
-
 export function useLogout() {
   const queryClient = useQueryClient();
 
   return () => {
     clearUser();
     queryClient.invalidateQueries(["user"]);
+    // ✅ Clear toàn bộ cache
+    queryClient.clear();
   };
 }
 
@@ -89,14 +123,60 @@ export function useUpdateUser() {
 
   return useMutation({
     mutationFn: async ({ id, updates }) => {
-      const { data } = await axios.put(`${BASE_URL}/account/${id}`, updates);
+      console.log("🔄 Đang cập nhật user:", id, updates);
+      console.log("🌐 API URL:", `${BASE_URL}/account/${id}`);
+      
+      try {
+        // Lấy user hiện tại từ API
+        const currentUserResponse = await axios.get(`${BASE_URL}/account/${id}`);
+        const currentUser = currentUserResponse.data;
+        
+        console.log("📦 User hiện tại từ API:", currentUser);
 
-      setUser(data);
-      return data;
+        // Merge dữ liệu cũ với dữ liệu mới
+        const updatedData = {
+          ...currentUser,
+          ...updates,
+        };
+
+        console.log("✏️ Dữ liệu sẽ cập nhật:", updatedData);
+
+        // Gọi API PUT để cập nhật
+        const { data } = await axios.put(
+          `${BASE_URL}/account/${id}`,
+          updatedData
+        );
+
+        console.log("✅ API trả về sau khi cập nhật:", data);
+
+        // Lưu vào localStorage
+        setUser(data);
+        
+        return data;
+      } catch (error) {
+        console.error("❌ Lỗi khi cập nhật user:", error);
+        console.error("Chi tiết lỗi:", error.response?.data || error.message);
+        
+        // Nếu API lỗi, cập nhật localStorage trực tiếp (fallback)
+        const currentUser = getUser();
+        if (currentUser && currentUser.id === id) {
+          const updatedUser = { ...currentUser, ...updates };
+          setUser(updatedUser);
+          console.log("⚠️ Đã fallback sang localStorage:", updatedUser);
+          return updatedUser;
+        }
+        
+        throw error;
+      }
     },
 
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("🎉 Cập nhật thành công! Data mới:", data);
       queryClient.invalidateQueries(["user"]);
+    },
+
+    onError: (error) => {
+      console.error("💥 onError được gọi:", error);
     },
   });
 }
@@ -106,11 +186,36 @@ export function useUpdateUsername() {
 
   return useMutation({
     mutationFn: async ({ id, newName }) => {
-      const updated = { username: newName };
-      const { data } = await axios.put(`${BASE_URL}/account/${id}`, updated);
-
-      setUser(data);
-      return data;
+      console.log("🔄 Đang cập nhật username:", id, newName);
+      
+      try {
+        // ✅ Lấy user hiện tại trước
+        const currentUserResponse = await axios.get(`${BASE_URL}/account/${id}`);
+        const currentUser = currentUserResponse.data;
+        
+        // ✅ Merge với dữ liệu mới
+        const updatedData = {
+          ...currentUser,
+          username: newName
+        };
+        
+        const { data } = await axios.put(`${BASE_URL}/account/${id}`, updatedData);
+        setUser(data);
+        console.log("✅ Cập nhật username thành công:", data);
+        return data;
+      } catch (error) {
+        console.error("❌ Lỗi khi cập nhật username:", error);
+        
+        // Fallback
+        const currentUser = getUser();
+        if (currentUser && currentUser.id === id) {
+          const updatedUser = { ...currentUser, username: newName };
+          setUser(updatedUser);
+          console.log("⚠️ Đã fallback username sang localStorage:", updatedUser);
+          return updatedUser;
+        }
+        throw error;
+      }
     },
 
     onSuccess: () => {
@@ -118,7 +223,6 @@ export function useUpdateUsername() {
     },
   });
 }
-
 
 export function useAuth() {
   const { data: user } = useCurrentUser();
@@ -137,8 +241,10 @@ export function useAuth() {
 
     logout: () => logout(),
 
-    updateUser: (id, updates) =>
-      updateUser.mutateAsync({ id, updates }),
+    updateUser: (id, updates) => {
+      console.log("🎯 useAuth.updateUser được gọi với:", { id, updates });
+      return updateUser.mutateAsync({ id, updates });
+    },
 
     updateUsername: (newName) => {
       if (!user) return;

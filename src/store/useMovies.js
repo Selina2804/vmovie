@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "https://68faff8894ec96066024411b.mockapi.io/movies";
+const API_URL = "https://68ef4da1b06cc802829cd64a.mockapi.io/movies";
 
 // Lấy toàn bộ phim
 export const useMovies = () => {

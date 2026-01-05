@@ -2,7 +2,6 @@ import React, { createContext, useContext } from "react";
 
 export const MovieContext = createContext();
 
-// Danh sách phim hoàn chỉnh
 const allMovies = [
   {
     id: 1,

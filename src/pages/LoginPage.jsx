@@ -1,13 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../store/useAuth"; 
 import "../styles/Auth.css";
 import loginbanner from "../assets/banner-login.jpg";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const LoginPage = () => {
   const auth = useAuth();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -52,14 +54,46 @@ const LoginPage = () => {
             {errors.email && <p className="error-text">{errors.email.message}</p>}
 
             <label>Mật khẩu</label>
-            <input
-              type="password"
-              {...register("password", { required: "Nhập mật khẩu" })}
-              placeholder="Nhập mật khẩu"
-            />
+            <div style={{ position: "relative", width: "100%" }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password", { required: "Nhập mật khẩu" })}
+                placeholder="Nhập mật khẩu"
+                style={{ width: "100%", paddingRight: "45px" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "20px",
+                  color: "#666",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0"
+                }}
+              >
+                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </button>
+            </div>
             {errors.password && (
               <p className="error-text">{errors.password.message}</p>
             )}
+
+            <p style={{ textAlign: "right", marginTop: "0.5rem", marginBottom: "1rem" }}>
+              <Link 
+                to="/forgot-password" 
+                style={{ color: "#666", fontSize: "0.9rem", textDecoration: "none" }}
+              >
+                Quên mật khẩu?
+              </Link>
+            </p>
 
             <button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}

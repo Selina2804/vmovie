@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./style.css";
 
-const BASE_URL = "https://68faff8894ec96066024411b.mockapi.io";
+const BASE_URL = "https://68ef4da1b06cc802829cd64a.mockapi.io";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -24,16 +24,16 @@ export default function Dashboard() {
         const users = usersRes.data || [];
 
         const nowShowing = movies.filter(
-          (m) => m.status?.toLowerCase() === "đang chiếu"
+          (m) => m.videoUrl && m.videoUrl.trim() !== ""
         ).length;
 
+        const allRatings = movies.flatMap((m) => m.ratings || []);
+
         const avgRating =
-          movies.length > 0
+          allRatings.length > 0
             ? (
-                movies.reduce(
-                  (sum, m) => sum + (parseFloat(m.rating) || 0),
-                  0
-                ) / movies.length
+                allRatings.reduce((sum, r) => sum + Number(r), 0) /
+                allRatings.length
               ).toFixed(1)
             : 0;
 
@@ -57,7 +57,6 @@ export default function Dashboard() {
       <p>Chào mừng bạn đến với bảng điều khiển quản trị hệ thống Movie!</p>
 
       <div className="stats-row">
-        {/* Tổng số phim */}
         <div className="stat-card" style={{ borderTopColor: "#4f46e5" }}>
           <div>
             <div className="stat-title">Tổng số phim</div>
@@ -68,7 +67,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Tổng số người dùng */}
         <div className="stat-card" style={{ borderTopColor: "#10b981" }}>
           <div>
             <div className="stat-title">Người dùng</div>
@@ -79,7 +77,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Đang chiếu */}
         <div className="stat-card" style={{ borderTopColor: "#f59e0b" }}>
           <div>
             <div className="stat-title">Đang chiếu</div>
@@ -90,7 +87,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Đánh giá TB */}
         <div className="stat-card" style={{ borderTopColor: "#ef4444" }}>
           <div>
             <div className="stat-title">Đánh giá TB</div>

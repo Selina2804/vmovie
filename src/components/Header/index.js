@@ -1,11 +1,14 @@
+// src/components/Header/index.js - FIXED VERSION
 import React, { useEffect, useState, useRef } from "react";
 import "./style.css";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaHeart } from "react-icons/fa";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { FiSearch } from "react-icons/fi";
 import logo from "../../assets/vmovie.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../store/useAuth";
+import { useFavorites } from "../../store/useFavorites";
+import Swal from "sweetalert2";
 import axios from "axios";
 
 function Header() {
@@ -13,31 +16,34 @@ function Header() {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
-  const [showGenreDropdown, setShowGenreDropdown] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showMobileGenre, setShowMobileGenre] = useState(false);
   const [showMobileCountry, setShowMobileCountry] = useState(false);
-  const [allMovies, setAllMovies] = useState([]);
+  const [allMovies, setAllMovies] = useState([]); // ✅ Đã khởi tạo array
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const { user, logout, updateUsername } = useAuth();
+  const { getFavoriteIds } = useFavorites();
 
-  const genreRef = useRef(null);
   const countryRef = useRef(null);
   const searchRef = useRef(null);
+
+  // Lấy số lượng phim yêu thích
+  const favoriteCount = getFavoriteIds().length;
 
   // Lấy dữ liệu phim từ MockAPI
   useEffect(() => {
     axios
-      .get("https://68faff8894ec96066024411b.mockapi.io/movies")
+      .get("https://68ef4da1b06cc802829cd64a.mockapi.io/movies")
       .then((res) => {
-        setAllMovies(res.data);
+        // ✅ Đảm bảo data là array
+        setAllMovies(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Lỗi tải dữ liệu phim:", err);
+        setAllMovies([]); // ✅ Set array rỗng khi lỗi
         setLoading(false);
       });
   }, []);
@@ -51,12 +57,9 @@ function Header() {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
-        genreRef.current &&
-        !genreRef.current.contains(e.target) &&
         countryRef.current &&
         !countryRef.current.contains(e.target)
       ) {
-        setShowGenreDropdown(false);
         setShowCountryDropdown(false);
       }
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -89,12 +92,15 @@ function Header() {
     if (value.trim() === "") {
       setSuggestions([]);
     } else {
-      const filtered = allMovies.filter(
-        (m) =>
-          m.title.toLowerCase().includes(value.toLowerCase()) ||
-          m.engTitle.toLowerCase().includes(value.toLowerCase())
-      );
-      setSuggestions(filtered.slice(0, 6));
+      // ✅ Kiểm tra allMovies trước khi filter
+      if (Array.isArray(allMovies) && allMovies.length > 0) {
+        const filtered = allMovies.filter(
+          (m) =>
+            m.title.toLowerCase().includes(value.toLowerCase()) ||
+            m.engTitle.toLowerCase().includes(value.toLowerCase())
+        );
+        setSuggestions(filtered.slice(0, 6));
+      }
     }
   };
 
@@ -104,10 +110,74 @@ function Header() {
     navigate(`/thong-tin/${movie.id}`);
   };
 
-  const genres = [
-    ...new Set(allMovies.flatMap((m) => m.genre.split(", ").map((g) => g.trim()))),
-  ];
-  const countries = [...new Set(allMovies.map((m) => m.country))];
+  const handleChangeName = async () => {
+    const { value: newName } = await Swal.fire({
+      title: "Đổi tên người dùng",
+      input: "text",
+      inputLabel: "Nhập tên mới của bạn",
+      inputValue: user.username,
+      showCancelButton: true,
+      confirmButtonColor: "#ff5c5c",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Lưu",
+      cancelButtonText: "Hủy",
+      inputValidator: (value) => {
+        if (!value) {
+          return "Tên không được để trống!";
+        }
+      },
+    });
+
+    if (newName) {
+      try {
+        await updateUsername(newName);
+        Swal.fire({
+          icon: "success",
+          title: "Thành công!",
+          text: `Tên đã được đổi thành "${newName}"`,
+          confirmButtonColor: "#4caf50",
+          timer: 2000,
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Không thể đổi tên. Vui lòng thử lại!",
+          confirmButtonColor: "#ff5c5c",
+        });
+      }
+    }
+  };
+
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Xác nhận đăng xuất",
+      text: "Bạn có chắc muốn đăng xuất?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ff5c5c",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Đăng xuất",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        Swal.fire({
+          icon: "success",
+          title: "Đã đăng xuất!",
+          text: "Hẹn gặp lại bạn!",
+          confirmButtonColor: "#4caf50",
+          timer: 1500,
+        });
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+      }
+    });
+  };
+
+  // ✅ FIX: Đảm bảo allMovies luôn là array trước khi map
+  const countries = [...new Set((Array.isArray(allMovies) ? allMovies : []).map((m) => m.country))];
 
   if (loading) {
     return (
@@ -185,49 +255,14 @@ function Header() {
         <nav className="nav">
           <a href="/">Trang Chủ</a>
           <a href="/danh-sach">Danh Sách</a>
-
-          {/* DROPDOWN THỂ LOẠI */}
-          <div
-            className="dropdown-click"
-            ref={genreRef}
-            onClick={() => {
-              setShowGenreDropdown(!showGenreDropdown);
-              setShowCountryDropdown(false);
-            }}
-          >
-            <span>
-              Thể Loại {showGenreDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
-            </span>
-            {showGenreDropdown && (
-              <div
-                className="dropdown-menu-large"
-                style={{
-                  marginTop: "5px",
-                  background: "rgba(20, 20, 20, 0.95)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                }}
-              >
-                {genres.map((g) => (
-                  <div
-                    key={g}
-                    className="dropdown-item"
-                    onClick={() => navigate(`/danh-sach?theloai=${g}`)}
-                  >
-                    {g}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          
+          <Link to="/xu-huong">Trending</Link>
 
           {/* DROPDOWN QUỐC GIA */}
           <div
             className="dropdown-click"
             ref={countryRef}
-            onClick={() => {
-              setShowCountryDropdown(!showCountryDropdown);
-              setShowGenreDropdown(false);
-            }}
+            onClick={() => setShowCountryDropdown(!showCountryDropdown)}
           >
             <span>
               Quốc Gia {showCountryDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
@@ -264,18 +299,16 @@ function Header() {
               <IoIosArrowDown />
               {showMenu && (
                 <div className="dropdown-menu">
-                  {user.role === "admin" && (
-                    <button onClick={() => navigate("/admin")}>Quản lý</button>
-                  )}
-                  <button
-                    onClick={() => {
-                      const newName = prompt("Nhập tên mới:", user.username);
-                      if (newName) updateUsername(newName);
-                    }}
-                  >
-                    Đổi tên
+                  <button onClick={() => navigate("/ho-so")}>👤 Hồ sơ</button>
+                  <button onClick={() => navigate("/yeu-thich")}>
+                    ❤️ Yêu thích {favoriteCount > 0 && `(${favoriteCount})`}
                   </button>
-                  <button onClick={logout}>Đăng xuất</button>
+                  <button onClick={() => navigate("/lich-su")}>📺 Lịch sử xem</button>
+                  {user.role === "admin" && (
+                    <button onClick={() => navigate("/admin")}>⚙️ Quản lý</button>
+                  )}
+                  <button onClick={handleChangeName}>✏️ Đổi tên</button>
+                  <button onClick={handleLogout}>🚪 Đăng xuất</button>
                 </div>
               )}
             </div>
@@ -306,25 +339,27 @@ function Header() {
 
           <a href="/">Trang Chủ</a>
           <a href="/danh-sach">Danh Sách</a>
+         
+          <Link to="/xu-huong" onClick={() => setIsMobileMenuOpen(false)}>Trending</Link>
 
-          <div className="mobile-dropdown">
-            <span onClick={() => setShowMobileGenre(!showMobileGenre)}>
-              Thể Loại {showMobileGenre ? <IoIosArrowUp /> : <IoIosArrowDown />}
-            </span>
-            {showMobileGenre &&
-              genres.map((g) => (
-                <div
-                  key={g}
-                  className="dropdown-item"
-                  onClick={() => {
-                    navigate(`/danh-sach?theloai=${g}`);
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  {g}
-                </div>
-              ))}
-          </div>
+          {/* YÊU THÍCH MOBILE */}
+          {user && (
+            <a href="/yeu-thich" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FaHeart style={{ color: "#ff4757" }} /> Yêu thích
+              {favoriteCount > 0 && (
+                <span style={{
+                  background: "#ff4757",
+                  color: "white",
+                  borderRadius: "50%",
+                  padding: "2px 8px",
+                  fontSize: "12px",
+                  fontWeight: "bold"
+                }}>
+                  {favoriteCount}
+                </span>
+              )}
+            </a>
+          )}
 
           <div className="mobile-dropdown">
             <span onClick={() => setShowMobileCountry(!showMobileCountry)}>
@@ -353,6 +388,36 @@ function Header() {
                   <span>{user.username}</span>
                 </div>
 
+                <button
+                  className="profile-btn"
+                  onClick={() => {
+                    navigate("/ho-so");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  👤 Hồ sơ
+                </button>
+
+                <button
+                  className="favorite-btn"
+                  onClick={() => {
+                    navigate("/yeu-thich");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  ❤️ Yêu thích {favoriteCount > 0 && `(${favoriteCount})`}
+                </button>
+
+                <button
+                  className="history-btn"
+                  onClick={() => {
+                    navigate("/lich-su");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  📺 Lịch sử xem
+                </button>
+
                 {user.role === "admin" && (
                   <button
                     className="admin-btn"
@@ -361,18 +426,18 @@ function Header() {
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    Quản lý
+                    ⚙️ Quản lý
                   </button>
                 )}
 
                 <button
                   className="logout-btn"
                   onClick={() => {
-                    logout();
                     setIsMobileMenuOpen(false);
+                    handleLogout();
                   }}
                 >
-                  Đăng xuất
+                  🚪 Đăng xuất
                 </button>
               </>
             ) : (
@@ -389,6 +454,31 @@ function Header() {
           </div>
         </div>
       )}
+
+      {/* CSS CHO BADGE */}
+      <style>{`
+        .favorite-link {
+          position: relative;
+        }
+        
+        .favorite-badge {
+          position: absolute;
+          top: -8px;
+          right: -10px;
+          background: #ff4757;
+          color: white;
+          border-radius: 50%;
+          padding: 2px 6px;
+          font-size: 11px;
+          font-weight: bold;
+          min-width: 18px;
+          text-align: center;
+        }
+
+        .favorite-link:hover .favorite-badge {
+          background: #ee5a6f;
+        }
+      `}</style>
     </>
   );
 }
