@@ -35,7 +35,7 @@ function Header() {
   // Lấy dữ liệu phim từ MockAPI
   useEffect(() => {
     axios
-      .get("https://68ef4da1b06cc802829cd64a.mockapi.io/movies")
+      .get("https://69538a2aa319a928023bc426.mockapi.io/movies")
       .then((res) => {
         // ✅ Đảm bảo data là array
         setAllMovies(Array.isArray(res.data) ? res.data : []);

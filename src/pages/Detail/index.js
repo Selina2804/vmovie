@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// src/pages/Detail/index.js - FULL CODE WITH SEASON & EPISODE DROPDOWN
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./style.css";
@@ -31,8 +32,9 @@ const MovieDetail = () => {
 
   const movieId = parseInt(id);
 
-  const getLastWatchedEpisode = (movieId) => {
-    if (!user) return 1;
+  // ⭐ LẤY THÔNG TIN XEM PHIM (HỖ TRỢ TẤT CẢ CÁC LOẠI)
+  const getLastWatchedInfo = (movieId) => {
+    if (!user) return { part: 1, season: 1, episode: 1 };
 
     const key = `watchProgress_${user.id}_${movieId}`;
     const saved = localStorage.getItem(key);
@@ -40,12 +42,16 @@ const MovieDetail = () => {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        return data.episode || 1;
+        return {
+          part: data.part || 1,
+          season: data.season || 1,
+          episode: data.episode || 1
+        };
       } catch {
-        return 1;
+        return { part: 1, season: 1, episode: 1 };
       }
     }
-    return 1;
+    return { part: 1, season: 1, episode: 1 };
   };
 
   const parseComments = (commentsData) => {
@@ -250,6 +256,66 @@ const MovieDetail = () => {
     return date.toLocaleDateString("vi-VN");
   };
 
+  // ⭐ HÀM XỬ LÝ NÚT "XEM PHIM" - HỖ TRỢ TẤT CẢ CÁC LOẠI
+  const handleWatchMovie = () => {
+    const watchInfo = getLastWatchedInfo(movie.id);
+
+    if (movie.movieType === "single" && movie.hasParts && movie.totalParts > 1) {
+      // PHIM LẺ NHIỀU PHẦN
+      navigate(`/xem-phim/${movie.id}?part=${watchInfo.part}`);
+    } else if (movie.movieType === "series" && movie.seasons && movie.seasons.length > 0) {
+      // PHIM BỘ NHIỀU SEASON
+      navigate(`/xem-phim/${movie.id}?season=${watchInfo.season}&episode=${watchInfo.episode}`);
+    } else if (movie.movieType === "series") {
+      // PHIM BỘ CŨ (1 season)
+      navigate(`/xem-phim/${movie.id}?episode=${watchInfo.episode}`);
+    } else {
+      // PHIM LẺ THƯỜNG
+      navigate(`/xem-phim/${movie.id}`);
+    }
+  };
+
+  // ⭐ TÍNH TỔNG SỐ TẬP ĐÃ CÓ LINK (HỖ TRỢ CẢ CŨ & MỚI)
+  const getTotalEpisodesWithLink = () => {
+    if (movie.movieType !== "series") return 0;
+    
+    if (movie.seasons && movie.seasons.length > 0) {
+      // Phim bộ nhiều season (MỚI)
+      let total = 0;
+      movie.seasons.forEach(season => {
+        const episodesWithLink = season.episodes?.filter(ep => ep.videoUrl?.trim()).length || 0;
+        total += episodesWithLink;
+      });
+      return total;
+    } else if (movie.episodes) {
+      // Phim bộ 1 season (CŨ)
+      return movie.episodes.filter(ep => ep.videoUrl?.trim()).length;
+    }
+    
+    return 0;
+  };
+
+  const getTotalEpisodes = () => {
+    if (movie.movieType !== "series") return 0;
+    
+    if (movie.seasons && movie.seasons.length > 0) {
+      // Phim bộ nhiều season (MỚI)
+      let total = 0;
+      movie.seasons.forEach(season => {
+        total += season.totalEpisodes || 0;
+      });
+      return total;
+    } else {
+      // Phim bộ 1 season (CŨ)
+      return movie.totalEpisodes || 0;
+    }
+  };
+
+  const getTotalPartsWithLink = () => {
+    if (!movie.hasParts || !movie.parts) return 0;
+    return movie.parts.filter(p => p.videoUrl?.trim()).length;
+  };
+
   if (loading) return <DetailSkeleton />;
   if (error) return <div style={{ padding: "120px", textAlign: "center", color: "red" }}>{error}</div>;
   if (!movie) return <div className="movie-detail-page" style={{ padding: "120px", color: "white" }}><h2>Không tìm thấy phim.</h2></div>;
@@ -270,28 +336,30 @@ const MovieDetail = () => {
         <div className="movie-detail-poster">
           <img src={movie.image} alt={movie.title} />
 
-          {/* ⭐ HIỂN THỊ TRẠNG THÁI TẬP PHIM */}
-          {movie.movieType === "series" && movie.totalEpisodes > 1 && (
-            <div className="episode-status-badge">
-              📺 Đã chiếu: {getLastWatchedEpisode(movie.id)}/{movie.totalEpisodes} tập
+          {/* ⭐ HIỂN THỊ DROPDOWN/BADGE THEO LOẠI PHIM */}
+          {movie.movieType === "single" && movie.hasParts && movie.totalParts > 1 && (
+            <div className="part-info-badge">
+              🎞️ {getTotalPartsWithLink()}/{movie.totalParts} phần
+            </div>
+          )}
+
+          {movie.movieType === "series" && movie.seasons && movie.seasons.length > 0 && (
+            <SeasonDropdown movie={movie} navigate={navigate} />
+          )}
+
+          {movie.movieType === "series" && (!movie.seasons || movie.seasons.length === 0) && movie.totalEpisodes > 1 && (
+            <div className="episode-info-badge">
+              📺 {getTotalEpisodesWithLink()}/{movie.totalEpisodes} tập
             </div>
           )}
 
           <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
             <button
               className="watch-button"
-              onClick={() => {
-                // ⭐ TỰ ĐỘNG MỞ TẬP TIẾP THEO
-                const lastEpisode = getLastWatchedEpisode(movie.id);
-                const nextEpisode = movie.movieType === "series" && lastEpisode < movie.totalEpisodes
-                  ? lastEpisode + 1
-                  : lastEpisode;
-
-                navigate(`/xem-phim/${movie.id}?episode=${nextEpisode}`);
-              }}
+              onClick={handleWatchMovie}
               style={{ flex: 1 }}
             >
-              🎬 {movie.movieType === "series" ? `Xem tiếp tập ${Math.min(getLastWatchedEpisode(movie.id) + 1, movie.totalEpisodes)}` : "Xem Phim"}
+              🎬 Xem Phim
             </button>
 
             <button
@@ -321,10 +389,20 @@ const MovieDetail = () => {
           <p className="movie-eng-title"><em>{movie.engTitle || ""}</em></p>
 
           <div className="movie-meta">
-            <p><strong>Trạng thái:</strong> Tập 1 Vietsub</p>
+            {/* ⭐ HIỂN THỊ LOẠI PHIM */}
+            <p>
+              <strong>Loại phim:</strong>{" "}
+              {movie.movieType === "series" 
+                ? movie.seasons && movie.seasons.length > 0
+                  ? `📺 Phim bộ (${movie.totalSeasons} season)` 
+                  : `📺 Phim bộ (${movie.totalEpisodes} tập)`
+                : movie.hasParts && movie.totalParts > 1
+                  ? `🎞️ Phim lẻ (${movie.totalParts} phần)`
+                  : "🎬 Phim lẻ"}
+            </p>
+
             <p><strong>Thời lượng:</strong> {movie.duration || "Chưa rõ"}</p>
 
-            {/* ✅ FIX: Kiểm tra undefined trước khi split */}
             <p>
               <strong>Thể loại:</strong>{" "}
               {movie.genre ? (
@@ -365,7 +443,6 @@ const MovieDetail = () => {
         <h2>Nội dung chi tiết</h2>
         <p>{movie.description || "Chưa có mô tả"}</p>
 
-        {/* ✅ FIX: Kiểm tra undefined trước khi replace */}
         <div className="keyword-tags">
           {movie.title && <span>#{movie.title.replace(/\s+/g, "")}</span>}
           {movie.engTitle && <span>#{movie.engTitle.replace(/\s+/g, "")}</span>}
@@ -525,32 +602,267 @@ const MovieDetail = () => {
           color: rgba(255, 255, 255, 0.5);
           padding: 40px;
         }
-          .episode-status-badge {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 13px;
-  text-align: center;
-  margin-top: 12px;
-  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
-  animation: pulse 2s ease-in-out infinite;
-}
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
-  }
-}
+        /* Badge cho phim lẻ nhiều phần & phim bộ cũ */
+        .part-info-badge,
+        .episode-info-badge {
+          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+          color: #fff;
+          padding: 10px 16px;
+          border-radius: 10px;
+          font-weight: 600;
+          font-size: 13px;
+          text-align: center;
+          margin-top: 12px;
+          box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+        }
       `}</style>
     </div>
   );
+};
+
+// 🎬 SEASON & EPISODE DROPDOWN COMPONENT - MỚI 100%
+const SeasonDropdown = ({ movie, navigate }) => {
+  const [openSeason, setOpenSeason] = useState(null);
+  const [selectedSeason, setSelectedSeason] = useState(1);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenSeason(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const getSeasonEpisodesWithLink = (season) => {
+    return season.episodes?.filter(ep => ep.videoUrl?.trim()) || [];
+  };
+
+  const getTotalEpisodesWithLink = () => {
+    let total = 0;
+    movie.seasons.forEach(season => {
+      total += getSeasonEpisodesWithLink(season).length;
+    });
+    return total;
+  };
+
+  const getTotalEpisodes = () => {
+    let total = 0;
+    movie.seasons.forEach(season => {
+      total += season.totalEpisodes || 0;
+    });
+    return total;
+  };
+
+  const handleSeasonToggle = (seasonNumber) => {
+    setSelectedSeason(seasonNumber);
+    setOpenSeason(openSeason === seasonNumber ? null : seasonNumber);
+  };
+
+  const handleEpisodeClick = (seasonNumber, episodeNumber) => {
+    navigate(`/xem-phim/${movie.id}?season=${seasonNumber}&episode=${episodeNumber}`);
+  };
+
+  return (
+    <>
+      <div className="season-dropdown-container" ref={dropdownRef}>
+        <div className="season-dropdown-header">Danh sách phần</div>
+        
+        {movie.seasons.map((season, index) => {
+          const seasonNumber = index + 1;
+          const episodesWithLink = getSeasonEpisodesWithLink(season);
+          const isOpen = openSeason === seasonNumber;
+          
+          return (
+            <div key={season.seasonNumber || seasonNumber} className="season-item-wrapper">
+              <div
+                className={`season-item ${isOpen ? 'active' : ''}`}
+                onClick={() => handleSeasonToggle(seasonNumber)}
+              >
+                <div className="season-item-left">
+                  <span className="hamburger-icon">☰</span>
+                  <span className="season-item-text">Phần {seasonNumber}</span>
+                </div>
+                <span className="season-arrow">{isOpen ? "▲" : "▼"}</span>
+              </div>
+
+              {isOpen && (
+                <div className="episode-list">
+                  {episodesWithLink.length === 0 ? (
+                    <div className="no-episodes">Chưa có tập nào</div>
+                  ) : (
+                    episodesWithLink.map((episode) => (
+                      <div
+                        key={episode.episodeNumber}
+                        className="episode-item"
+                        onClick={() => handleEpisodeClick(seasonNumber, episode.episodeNumber)}
+                      >
+                        <span className="play-icon">▶</span>
+                        <span className="episode-text">Tập {episode.episodeNumber}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="season-status-info">
+        📺 {movie.totalSeasons} Season • {getTotalEpisodesWithLink()}/{getTotalEpisodes()} tập
+      </div>
+
+      <style>{`
+        .season-dropdown-container {
+          margin-top: 12px;
+          background: rgba(30, 32, 46, 0.95);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: 8px;
+          overflow: hidden;
+          backdrop-filter: blur(10px);
+          max-height: 400px;
+          overflow-y: auto;
+        }
+
+        .season-dropdown-container::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .season-dropdown-container::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.03);
+        }
+
+        .season-dropdown-container::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 3px;
+        }
+
+        .season-dropdown-header {
+          padding: 10px 16px;
+          background: rgba(255, 255, 255, 0.03);
+          color: rgba(255, 255, 255, 0.5);
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .season-item-wrapper {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .season-item-wrapper:last-child {
+          border-bottom: none;
+        }
+
+        .season-item {
+          padding: 12px 16px;
+          cursor: pointer;
+          transition: all 0.15s;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .season-item:hover {
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        .season-item.active {
+          background: rgba(139, 92, 246, 0.15);
+          border-left: 3px solid #8b5cf6;
+        }
+
+        .season-item-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .hamburger-icon {
+          font-size: 16px;
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        .season-item-text {
+          color: #fff;
+          font-weight: 500;
+          font-size: 14px;
+}
+          .season-arrow {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.2s;
+  }
+
+  .episode-list {
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .episode-item {
+    padding: 10px 16px 10px 40px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  }
+
+  .episode-item:last-child {
+    border-bottom: none;
+  }
+
+  .episode-item:hover {
+    background: rgba(99, 102, 241, 0.2);
+    padding-left: 45px;
+  }
+
+  .play-icon {
+    color: #6366f1;
+    font-size: 10px;
+  }
+
+  .episode-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .no-episodes {
+    padding: 16px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  .season-status-info {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 12px;
+    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .season-dropdown-container {
+      max-height: 300px;
+    }
+  }
+`}</style>
+</>
+);
 };
 
 const CommentForm = ({ user, commentText, setCommentText, commentRating, setCommentRating, isSubmitting, onSubmit }) => (
@@ -569,7 +881,6 @@ const CommentForm = ({ user, commentText, setCommentText, commentRating, setComm
           rows="3"
           disabled={isSubmitting}
         />
-
         <div className="comment-form-footer">
           <div className="comment-rating-stars">
             {[1, 2, 3, 4, 5].map((star) => (
@@ -688,16 +999,15 @@ const CommentForm = ({ user, commentText, setCommentText, commentRating, setComm
 const CommentItem = ({ comment, user, onDelete, onEdit, onLike, formatTimeAgo }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.content);
-
   const isOwner = user && (user.id === comment.userId || user.email === comment.userId);
-
+  
   const handleSaveEdit = () => {
     if (editText.trim()) {
       onEdit(comment.id, editText.trim());
       setIsEditing(false);
     }
   };
-
+  
   return (
     <div className="comment-item">
       <img
@@ -705,7 +1015,6 @@ const CommentItem = ({ comment, user, onDelete, onEdit, onLike, formatTimeAgo })
         alt={comment.userName}
         className="comment-avatar"
       />
-
       <div className="comment-content">
         <div className="comment-header">
           <div className="comment-user-info">
@@ -918,3 +1227,4 @@ const CommentItem = ({ comment, user, onDelete, onEdit, onLike, formatTimeAgo })
 };
 
 export default MovieDetail;
+          

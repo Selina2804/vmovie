@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./style.css";
 
-const BASE_URL = "https://68ef4da1b06cc802829cd64a.mockapi.io";
+const BASE_URL = "https://69538a2aa319a928023bc426.mockapi.io";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({

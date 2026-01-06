@@ -1,7 +1,7 @@
-// src/services/apiService.js
+// src/store/apiService.js
 import axios from "axios";
 
-const BASE_URL = "https://68ef4da1b06cc802829cd64a.mockapi.io";
+const BASE_URL = "https://69538a2aa319a928023bc426.mockapi.io";
 
 export const fetchAll = async (resource) => {
   try {
@@ -39,7 +39,29 @@ export const deleteItem = async (resource, id) => {
   }
 };
 
-// Gửi email quên mật khẩu
+// ⭐ HÀM MỚI: Tăng lượt xem phim
+export const incrementMovieViews = async (movieId) => {
+  try {
+    const res = await axios.get(`${BASE_URL}/movies/${movieId}`);
+    const movie = res.data;
+    
+    const currentViews = parseInt(movie.views) || 0;
+    const updatedMovie = {
+      ...movie,
+      views: currentViews + 1
+    };
+    
+    await axios.put(`${BASE_URL}/movies/${movieId}`, updatedMovie);
+    
+    console.log(`✅ Tăng views cho phim ${movieId}: ${currentViews} → ${currentViews + 1}`);
+    
+    return updatedMovie;
+  } catch (err) {
+    console.error(`❌ Lỗi tăng views phim ${movieId}:`, err);
+    throw err;
+  }
+};
+
 export const forgotPassword = async (email) => {
   try {
     const res = await axios.post(`${BASE_URL}/auth/forgot-password`, { email });
@@ -50,7 +72,6 @@ export const forgotPassword = async (email) => {
   }
 };
 
-// Đặt lại mật khẩu
 export const resetPassword = async (token, newPassword) => {
   try {
     const res = await axios.post(`${BASE_URL}/auth/reset-password`, { 

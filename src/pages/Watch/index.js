@@ -1,8 +1,9 @@
-// src/pages/Watch/index.js - TỰ ĐỘNG ẨN/HIỆN TẬP PHIM + FIX LẤY LINK TỪ EPISODES
+// src/pages/Watch/index.js
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../store/useAuth";
 import { useWatchProgress } from "../../hooks/useWatchProgress";
+import { incrementMovieViews } from "../../store/apiService";
 import ReportModal from "../../components/ReportModal";
 import axios from "axios";
 import "./style.css";
@@ -22,16 +23,19 @@ const WatchMovie = () => {
   const [error, setError] = useState(null);
 
   const [currentServer, setCurrentServer] = useState("1");
+  
+  const [currentPart, setCurrentPart] = useState(1);
+  const [currentSeason, setCurrentSeason] = useState(1);
   const [currentEpisode, setCurrentEpisode] = useState(1);
   
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const videoPlayerRef = useRef(null);
   const progressIntervalRef = useRef(null);
+  const hasIncrementedViews = useRef(false);
 
-  // ⭐ LẤY THÔNG TIN TẬP ĐÃ XEM TỪ localStorage
-  const getLastWatchedEpisode = (movieId) => {
-    if (!user) return 1;
+  const getLastWatchedInfo = (movieId) => {
+    if (!user) return { part: 1, season: 1, episode: 1 };
     
     const key = `watchProgress_${user.id}_${movieId}`;
     const saved = localStorage.getItem(key);
@@ -39,21 +43,26 @@ const WatchMovie = () => {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        return data.episode || 1;
+        return {
+          part: data.part || 1,
+          season: data.season || 1,
+          episode: data.episode || 1
+        };
       } catch {
-        return 1;
+        return { part: 1, season: 1, episode: 1 };
       }
     }
-    return 1;
+    return { part: 1, season: 1, episode: 1 };
   };
 
-  // ⭐ LƯU THÔNG TIN TẬP ĐANG XEM
-  const saveWatchedEpisode = (movieId, episode) => {
+  const saveWatchedInfo = (movieId, info) => {
     if (!user) return;
     
     const key = `watchProgress_${user.id}_${movieId}`;
     const data = {
-      episode: episode,
+      part: info.part || 1,
+      season: info.season || 1,
+      episode: info.episode || 1,
       timestamp: new Date().toISOString(),
       movieId: movieId,
     };
@@ -65,24 +74,42 @@ const WatchMovie = () => {
     axios
       .get(`${API_URL}/${id}`)
       .then((response) => {
-        setMovie(response.data);
+        const movieData = response.data;
+        setMovie(movieData);
         setLoading(false);
 
-        // ⭐ TỰ ĐỘNG SET TẬP PHIM KHI VÀO
-        const episodeFromUrl = new URLSearchParams(location.search).get('episode');
+        const params = new URLSearchParams(location.search);
+        const partFromUrl = params.get('part');
+        const seasonFromUrl = params.get('season');
+        const episodeFromUrl = params.get('episode');
         
-        if (episodeFromUrl) {
-          // Nếu có episode trong URL thì dùng nó
-          setCurrentEpisode(parseInt(episodeFromUrl));
+        if (partFromUrl) {
+          setCurrentPart(parseInt(partFromUrl));
+        } else if (seasonFromUrl || episodeFromUrl) {
+          setCurrentSeason(seasonFromUrl ? parseInt(seasonFromUrl) : 1);
+          setCurrentEpisode(episodeFromUrl ? parseInt(episodeFromUrl) : 1);
         } else if (user) {
-          // Nếu không có trong URL thì lấy từ localStorage
-          const lastEpisode = getLastWatchedEpisode(response.data.id);
-          setCurrentEpisode(lastEpisode);
+          const lastInfo = getLastWatchedInfo(movieData.id);
+          setCurrentPart(lastInfo.part);
+          setCurrentSeason(lastInfo.season);
+          setCurrentEpisode(lastInfo.episode);
         }
 
-        // LƯU LỊCH SỬ XEM
-        if (user && response.data) {
-          saveToHistory(response.data);
+        if (user && movieData) {
+          saveToHistory(movieData);
+        }
+
+        // ⭐⭐⭐ TĂNG VIEWS MỖI LẦN XEM ⭐⭐⭐
+        if (!hasIncrementedViews.current) {
+          incrementMovieViews(movieData.id)
+            .then((updatedMovie) => {
+              console.log('✅ Đã tăng views:', updatedMovie.views);
+              setMovie(updatedMovie);
+              hasIncrementedViews.current = true;
+            })
+            .catch((err) => {
+              console.error('❌ Không thể tăng views:', err);
+            });
         }
       })
       .catch((err) => {
@@ -92,12 +119,15 @@ const WatchMovie = () => {
       });
   }, [id, user, location]);
 
-  // ⭐ LƯU TẬP ĐANG XEM KHI CHUYỂN TẬP
   useEffect(() => {
     if (movie && user) {
-      saveWatchedEpisode(movie.id, currentEpisode);
+      saveWatchedInfo(movie.id, {
+        part: currentPart,
+        season: currentSeason,
+        episode: currentEpisode
+      });
     }
-  }, [currentEpisode, movie, user]);
+  }, [currentPart, currentSeason, currentEpisode, movie, user]);
 
   useEffect(() => {
     if (currentProgress && videoPlayerRef.current) {
@@ -124,6 +154,8 @@ const WatchMovie = () => {
           image: movie.image,
           currentTime: simulatedTime,
           duration: duration,
+          part: currentPart,
+          season: currentSeason,
           episode: currentEpisode,
           genre: movie.genre,
           country: movie.country,
@@ -137,7 +169,7 @@ const WatchMovie = () => {
         clearInterval(progressIntervalRef.current);
       }
     };
-  }, [user, movie, currentEpisode, currentProgress, autoSaveProgress]);
+  }, [user, movie, currentPart, currentSeason, currentEpisode, currentProgress, autoSaveProgress]);
 
   const parseDuration = (durationStr) => {
     if (!durationStr) return 3600;
@@ -231,19 +263,22 @@ const WatchMovie = () => {
     return url;
   };
 
-  const isSeries = movie.movieType === "series";
-  const totalEpisodes = movie.totalEpisodes || 1;
-
-  // ⭐⭐⭐ FIX CHÍNH - LẤY LINK VIDEO ĐÚNG THEO LOẠI PHIM ⭐⭐⭐
   const getCurrentVideoUrl = () => {
-    if (isSeries && movie.episodes && movie.episodes.length > 0) {
-      // Phim bộ → lấy link từ episodes array
-      const episode = movie.episodes.find(ep => ep.episodeNumber === currentEpisode);
-      return episode?.videoUrl || null;
-    } else {
-      // Phim lẻ → lấy link từ videoUrl
-      return movie.videoUrl || null;
+    if (movie.movieType === "single" && movie.hasParts && movie.parts && movie.parts.length > 0) {
+      const part = movie.parts.find(p => p.partNumber === currentPart);
+      return part?.videoUrl || null;
     }
+    
+    if (movie.movieType === "series" && movie.seasons && movie.seasons.length > 0) {
+      const season = movie.seasons.find(s => s.seasonNumber === currentSeason);
+      if (season && season.episodes && season.episodes.length > 0) {
+        const episode = season.episodes.find(ep => ep.episodeNumber === currentEpisode);
+        return episode?.videoUrl || null;
+      }
+      return null;
+    }
+    
+    return movie.videoUrl || null;
   };
 
   const currentVideoUrl = getCurrentVideoUrl();
@@ -254,14 +289,23 @@ const WatchMovie = () => {
     3: movie.backupUrls ? getEmbedUrl(movie.backupUrls[1]) : null,
   };
 
+  const isSeriesWithSeasons = movie.movieType === "series" && movie.seasons && movie.seasons.length > 0;
+  const isSingleWithParts = movie.movieType === "single" && movie.hasParts && movie.parts && movie.parts.length > 0;
+  const isSingleNormal = movie.movieType === "single" && !movie.hasParts;
+
   return (
     <div className="watch-movie-page">
       <div className="header-space"></div>
 
-      {/* ⭐ HIỂN THỊ TẬP ĐANG XEM */}
-      {isSeries && (
+      {isSingleWithParts && (
         <div className="current-episode-badge">
-          📺 Đang xem: Tập {currentEpisode}/{totalEpisodes}
+          🎞️ Đang xem: Phần {currentPart}/{movie.totalParts}
+        </div>
+      )}
+
+      {isSeriesWithSeasons && (
+        <div className="current-episode-badge">
+          📺 Đang xem: Season {currentSeason} - Tập {currentEpisode}
         </div>
       )}
 
@@ -271,13 +315,12 @@ const WatchMovie = () => {
         </div>
       )}
 
-      {/* Video Player */}
       {servers[currentServer] ? (
         <iframe
           ref={videoPlayerRef}
           className="main-video"
           src={servers[currentServer]}
-          title={`${movie.title} - Server ${currentServer} - Tập ${currentEpisode}`}
+          title={`${movie.title} - Server ${currentServer}`}
           allowFullScreen
           frameBorder="0"
           scrolling="no"
@@ -291,11 +334,10 @@ const WatchMovie = () => {
           background: "#000",
           color: "#fff"
         }}>
-          <h3>⚠️ {isSeries ? `Tập ${currentEpisode} chưa có link video` : "Video chưa có sẵn cho server này"}</h3>
+          <h3>⚠️ Video chưa có sẵn</h3>
         </div>
       )}
 
-      {/* Server selection buttons */}
       <div className="server-buttons">
         {Object.keys(servers).map((num) => (
           <button
@@ -317,32 +359,34 @@ const WatchMovie = () => {
         </button>
       </div>
 
-      {/* Rating */}
       <div className="movie-rating">
-        ⭐⭐⭐⭐☆ <span>(8.9 điểm / 350 lượt xem)</span>
+        ⭐⭐⭐⭐☆ <span>(8.9 điểm / {movie.views || 0} lượt xem)</span>
       </div>
 
-      {/* ⭐ CHỈ HIỂN THỊ TẬP PHIM NẾU LÀ PHIM BỘ */}
-      {isSeries && totalEpisodes > 1 && (
+      {isSingleWithParts && (
         <div className="episode-section">
           <h3>
-            TẬP PHIM <span className="vietsub-tag">VIETSUB</span>
+            CÁC PHẦN PHIM <span className="vietsub-tag">VIETSUB</span>
           </h3>
           <div className="episode-list">
-            {Array.from({ length: totalEpisodes }, (_, i) => i + 1).map((ep) => {
-              // ⭐ Kiểm tra tập có link chưa
-              const hasVideo = movie.episodes?.find(e => e.episodeNumber === ep)?.videoUrl;
+            {movie.parts.map((part) => {
+              const hasVideo = part.videoUrl?.trim();
               
               return (
                 <button
-                  key={ep}
-                  className={`episode-btn ${ep === currentEpisode ? "active" : ""} ${!hasVideo ? "no-video" : ""}`}
-                  onClick={() => hasVideo && setCurrentEpisode(ep)}
+                  key={part.partNumber}
+                  className={`episode-btn ${part.partNumber === currentPart ? "active" : ""} ${!hasVideo ? "no-video" : ""}`}
+                  onClick={() => hasVideo && setCurrentPart(part.partNumber)}
                   disabled={!hasVideo}
-                  title={hasVideo ? `Xem tập ${ep}` : `Tập ${ep} chưa có link`}
+                  title={hasVideo ? `Xem phần ${part.partNumber}${part.partTitle ? `: ${part.partTitle}` : ''}` : `Phần ${part.partNumber} chưa có link`}
                 >
-                  {ep}
+                  Phần {part.partNumber}
                   {!hasVideo && <span className="lock-icon">🔒</span>}
+                  {part.partTitle && (
+                    <div style={{ fontSize: '10px', marginTop: '2px', opacity: 0.8 }}>
+                      {part.partTitle.length > 20 ? part.partTitle.slice(0, 20) + '...' : part.partTitle}
+                    </div>
+                  )}
                 </button>
               );
             })}
@@ -350,18 +394,80 @@ const WatchMovie = () => {
         </div>
       )}
 
-      {/* Movie info */}
+      {isSeriesWithSeasons && (
+        <div className="episode-section">
+          <h3>
+            CHỌN SEASON <span className="vietsub-tag">VIETSUB</span>
+          </h3>
+          
+          <div className="season-tabs">
+            {movie.seasons.map((season) => {
+              const episodesWithLinks = season.episodes?.filter(ep => ep.videoUrl?.trim()).length || 0;
+              const totalEps = season.totalEpisodes || 0;
+              
+              return (
+                <button
+                  key={season.seasonNumber}
+                  className={`season-tab ${season.seasonNumber === currentSeason ? "active" : ""}`}
+                  onClick={() => {
+                    setCurrentSeason(season.seasonNumber);
+                    setCurrentEpisode(1);
+                  }}
+                >
+                  Season {season.seasonNumber}
+                  <span className="season-progress">({episodesWithLinks}/{totalEps})</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <h3 style={{ marginTop: '20px', fontSize: '16px' }}>
+            TẬP PHIM - SEASON {currentSeason}
+          </h3>
+          <div className="episode-list">
+            {movie.seasons
+              .find(s => s.seasonNumber === currentSeason)
+              ?.episodes?.map((episode) => {
+                const hasVideo = episode.videoUrl?.trim();
+                
+                return (
+                  <button
+                    key={episode.episodeNumber}
+                    className={`episode-btn ${episode.episodeNumber === currentEpisode ? "active" : ""} ${!hasVideo ? "no-video" : ""}`}
+                    onClick={() => hasVideo && setCurrentEpisode(episode.episodeNumber)}
+                    disabled={!hasVideo}
+                    title={hasVideo ? `Xem tập ${episode.episodeNumber}` : `Tập ${episode.episodeNumber} chưa có link`}
+                  >
+                    Tập {episode.episodeNumber}
+                    {!hasVideo && <span className="lock-icon">🔒</span>}
+                  </button>
+                );
+              })}
+          </div>
+        </div>
+      )}
+
       <div className="watch-info">
         <h2>
           {movie.title}
-          {isSeries && (
+          {isSingleWithParts && (
+            <span style={{ 
+              marginLeft: '10px', 
+              fontSize: '14px', 
+              color: '#fbbf24', 
+              fontWeight: 'normal' 
+            }}>
+              🎞️ ({movie.totalParts} phần)
+            </span>
+          )}
+          {isSeriesWithSeasons && (
             <span style={{ 
               marginLeft: '10px', 
               fontSize: '14px', 
               color: '#4ade80', 
               fontWeight: 'normal' 
             }}>
-              📺 ({totalEpisodes} tập)
+              📺 ({movie.totalSeasons} season)
             </span>
           )}
         </h2>
@@ -369,7 +475,12 @@ const WatchMovie = () => {
 
         <ul className="movie-details">
           <li>
-            <strong>Loại:</strong> {isSeries ? "Phim bộ" : "Phim lẻ"}
+            <strong>Loại:</strong>{" "}
+            {isSeriesWithSeasons 
+              ? `Phim bộ (${movie.totalSeasons} season)` 
+              : isSingleWithParts 
+                ? `Phim lẻ (${movie.totalParts} phần)` 
+                : "Phim lẻ"}
           </li>
           <li>
             <strong>Thể loại:</strong> {movie.genre}
@@ -383,12 +494,15 @@ const WatchMovie = () => {
           <li>
             <strong>Năm:</strong> {movie.year}
           </li>
+          <li>
+            <strong>Lượt xem:</strong> {movie.views || 0}
+          </li>
         </ul>
 
         <p className="movie-description">{movie.description || "Chưa có mô tả"}</p>
 
         <div className="keyword-tags">
-          <span>#{movie.title.replace(/\s+/g, "")}</span>
+          {movie.title && <span>#{movie.title.replace(/\s+/g, "")}</span>}
           {movie.engTitle && <span>#{movie.engTitle.replace(/\s+/g, "")}</span>}
         </div>
 
@@ -437,6 +551,50 @@ const WatchMovie = () => {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
           }
+        }
+
+        .season-tabs {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-bottom: 20px;
+          padding: 15px;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 12px;
+        }
+
+        .season-tab {
+          padding: 12px 20px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 2px solid rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .season-tab:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+          transform: translateY(-2px);
+        }
+
+        .season-tab.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-color: #667eea;
+          color: #fff;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .season-progress {
+          font-size: 11px;
+          opacity: 0.8;
         }
 
         .episode-btn.no-video {

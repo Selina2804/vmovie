@@ -2,6 +2,7 @@
   "name": "vmovie",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://69538a2aa319a928023bc426.mockapi.io",
   "dependencies": {
     "@tanstack/react-query": "^5.90.10",
     "@testing-library/dom": "^10.4.1",

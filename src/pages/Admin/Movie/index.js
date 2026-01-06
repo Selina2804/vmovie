@@ -1,4 +1,4 @@
-// src/pages/Admin/Movie/index.js - FIX NHẬP SỐ TẬP & CẢNH BÁO XÓA
+// src/pages/Admin/Movie/index.js - FULL CODE với Phim lẻ nhiều phần & Phim bộ nhiều season
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -22,13 +22,24 @@ export default function MovieManager() {
     trailerUrl: "",
     description: "",
     movieType: "single",
-    totalEpisodes: 1,
-    episodes: [],
+    
+    // Phim lẻ nhiều phần
+    hasParts: false,
+    totalParts: 1,
+    parts: [],
+    
+    // Phim bộ nhiều season
+    totalSeasons: 1,
+    seasons: [],
   });
   const [errors, setErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isLoadingDuration, setIsLoadingDuration] = useState(false);
+  
+  // State quản lý UI
+  const [currentPartEdit, setCurrentPartEdit] = useState(1);
+  const [currentSeasonEdit, setCurrentSeasonEdit] = useState(1);
   const [currentEpisodeEdit, setCurrentEpisodeEdit] = useState(1);
 
   const extractYouTubeID = (url) => {
@@ -241,10 +252,16 @@ export default function MovieManager() {
             error = `Năm phải từ 1900 đến ${currentYear + 1}`;
         }
         break;
-      case "totalEpisodes":
+      case "totalParts":
+        if (form.hasParts) {
+          if (!value || value < 1) error = "Phải có ít nhất 1 phần";
+          if (value > 100) error = "Số phần không hợp lý";
+        }
+        break;
+      case "totalSeasons":
         if (form.movieType === "series") {
-          if (!value || value < 1) error = "Phim bộ phải có ít nhất 1 tập";
-          if (value > 1000) error = "Số tập không hợp lý";
+          if (!value || value < 1) error = "Phải có ít nhất 1 season";
+          if (value > 50) error = "Số season không hợp lý";
         }
         break;
       case "image":
@@ -285,59 +302,249 @@ export default function MovieManager() {
 
   const handleMovieTypeChange = (e) => {
     const movieType = e.target.value;
-    const newTotalEpisodes = movieType === "single" ? 1 : form.totalEpisodes || 1;
-
+    
     setForm((prev) => ({
       ...prev,
       movieType,
-      totalEpisodes: newTotalEpisodes,
-      episodes: movieType === "series"
-        ? Array.from({ length: newTotalEpisodes }, (_, i) => ({
-          episodeNumber: i + 1,
-          videoUrl: prev.episodes?.[i]?.videoUrl || ""
-        }))
-        : []
+      
+      // Reset phim lẻ
+      hasParts: false,
+      totalParts: 1,
+      parts: [],
+      videoUrl: "",
+      
+      // Reset phim bộ
+      totalSeasons: movieType === "series" ? 1 : 1,
+      seasons: movieType === "series" ? [{
+        seasonNumber: 1,
+        totalEpisodes: 1,
+        episodes: [{ episodeNumber: 1, videoUrl: "" }]
+      }] : []
     }));
-
+    
+    setCurrentPartEdit(1);
+    setCurrentSeasonEdit(1);
     setCurrentEpisodeEdit(1);
   };
 
-  // ⭐⭐⭐ FIX CHÍNH - XỬ LÝ THAY ĐỔI SỐ TẬP CÓ CẢNH BÁO ⭐⭐⭐
-  const handleTotalEpisodesChange = async (e) => {
-    const inputValue = e.target.value;
+  // ========== XỬ LÝ PHIM LẺ NHIỀU PHẦN ==========
+  
+  const handleHasPartsChange = (e) => {
+    const hasParts = e.target.checked;
+    
+    setForm((prev) => ({
+      ...prev,
+      hasParts,
+      totalParts: hasParts ? 1 : 1,
+      parts: hasParts ? [{ partNumber: 1, partTitle: "", videoUrl: "", year: "" }] : [],
+      videoUrl: hasParts ? "" : prev.videoUrl
+    }));
+    
+    setCurrentPartEdit(1);
+  };
 
-    // ✅ Cho phép xóa hết để gõ lại
+  const handleTotalPartsChange = async (e) => {
+    const inputValue = e.target.value;
+    
     if (inputValue === "") {
-      setForm((prev) => ({ ...prev, totalEpisodes: "" }));
+      setForm((prev) => ({ ...prev, totalParts: "" }));
       return;
     }
-
+    
     const newTotal = parseInt(inputValue);
-
-    // Validate số hợp lệ
+    
     if (isNaN(newTotal) || newTotal < 1) {
       return;
     }
-
-    const currentTotal = form.episodes.length;
-
-    // ⭐ NÊU GIẢM SỐ TẬP → KIỂM TRA CÓ TẬP NÀO ĐÃ CÓ LINK BỊ XÓA KHÔNG
+    
+    const currentTotal = form.parts.length;
+    
     if (newTotal < currentTotal) {
-      // Lấy danh sách tập sẽ bị xóa
-      const episodesWillBeDeleted = form.episodes.slice(newTotal);
-
-      // Kiểm tra xem có tập nào đã có link không
-      const episodesWithLinks = episodesWillBeDeleted.filter(ep => ep.videoUrl.trim() !== "");
-
-      if (episodesWithLinks.length > 0) {
-        // ⚠️ CÓ TẬP ĐÃ CÓ LINK → CẢNH BÁO
-        const episodeNumbers = episodesWithLinks.map(ep => ep.episodeNumber).join(", ");
-
+      const partsWillBeDeleted = form.parts.slice(newTotal);
+      const partsWithLinks = partsWillBeDeleted.filter(p => p.videoUrl.trim() !== "");
+      
+      if (partsWithLinks.length > 0) {
+        const partNumbers = partsWithLinks.map(p => `Phần ${p.partNumber}`).join(", ");
+        
         const result = await Swal.fire({
           title: '⚠️ Cảnh báo!',
           html: `
             <div style="text-align: left;">
-              <p>Bạn đang giảm số tập từ <strong>${currentTotal}</strong> xuống <strong>${newTotal}</strong>.</p>
+              <p>Bạn đang giảm số phần từ <strong>${currentTotal}</strong> xuống <strong>${newTotal}</strong>.</p>
+              <p style="color: #f59e0b; margin-top: 10px;">
+                <strong>Các phần sau đã có link video và sẽ bị xóa:</strong>
+              </p>
+              <p style="color: #ef4444; font-weight: 600;">
+                ${partNumbers}
+              </p>
+              <p style="margin-top: 10px;">Bạn có chắc chắn muốn tiếp tục?</p>
+            </div>
+          `,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Xóa các phần này',
+          cancelButtonText: 'Hủy bỏ',
+          width: '500px'
+        });
+        
+        if (!result.isConfirmed) {
+          return;
+        }
+      }
+    }
+    
+    setForm((prev) => {
+      const currentParts = prev.parts || [];
+      const newParts = Array.from({ length: newTotal }, (_, i) => ({
+        partNumber: i + 1,
+        partTitle: currentParts[i]?.partTitle || "",
+        videoUrl: currentParts[i]?.videoUrl || "",
+        year: currentParts[i]?.year || ""
+      }));
+      
+      return {
+        ...prev,
+        totalParts: newTotal,
+        parts: newParts
+      };
+    });
+    
+    if (currentPartEdit > newTotal) {
+      setCurrentPartEdit(newTotal);
+    }
+  };
+
+  const handlePartFieldChange = (partNum, field, value) => {
+    setForm((prev) => ({
+      ...prev,
+      parts: prev.parts.map(p =>
+        p.partNumber === partNum
+          ? { ...p, [field]: value }
+          : p
+      )
+    }));
+  };
+
+  // ========== XỬ LÝ PHIM BỘ NHIỀU SEASON ==========
+  
+  const handleTotalSeasonsChange = async (e) => {
+    const inputValue = e.target.value;
+    
+    if (inputValue === "") {
+      setForm((prev) => ({ ...prev, totalSeasons: "" }));
+      return;
+    }
+    
+    const newTotal = parseInt(inputValue);
+    
+    if (isNaN(newTotal) || newTotal < 1) {
+      return;
+    }
+    
+    const currentTotal = form.seasons.length;
+    
+    if (newTotal < currentTotal) {
+      const seasonsWillBeDeleted = form.seasons.slice(newTotal);
+      
+      let hasEpisodesWithLinks = false;
+      const seasonNumbers = [];
+      
+      seasonsWillBeDeleted.forEach(season => {
+        const episodesWithLinks = season.episodes?.filter(ep => ep.videoUrl.trim() !== "");
+        if (episodesWithLinks && episodesWithLinks.length > 0) {
+          hasEpisodesWithLinks = true;
+          seasonNumbers.push(`Season ${season.seasonNumber} (${episodesWithLinks.length} tập)`);
+        }
+      });
+      
+      if (hasEpisodesWithLinks) {
+        const result = await Swal.fire({
+          title: '⚠️ Cảnh báo!',
+          html: `
+            <div style="text-align: left;">
+              <p>Bạn đang giảm số season từ <strong>${currentTotal}</strong> xuống <strong>${newTotal}</strong>.</p>
+              <p style="color: #f59e0b; margin-top: 10px;">
+                <strong>Các season sau có tập đã có link và sẽ bị xóa:</strong>
+              </p>
+              <p style="color: #ef4444; font-weight: 600;">
+                ${seasonNumbers.join('<br>')}
+              </p>
+              <p style="margin-top: 10px;">Bạn có chắc chắn muốn tiếp tục?</p>
+            </div>
+          `,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Xóa các season này',
+          cancelButtonText: 'Hủy bỏ',
+          width: '500px'
+        });
+        
+        if (!result.isConfirmed) {
+          return;
+        }
+      }
+    }
+    
+    setForm((prev) => {
+      const currentSeasons = prev.seasons || [];
+      const newSeasons = Array.from({ length: newTotal }, (_, i) => ({
+        seasonNumber: i + 1,
+        totalEpisodes: currentSeasons[i]?.totalEpisodes || 1,
+        episodes: currentSeasons[i]?.episodes || [{ episodeNumber: 1, videoUrl: "" }]
+      }));
+      
+      return {
+        ...prev,
+        totalSeasons: newTotal,
+        seasons: newSeasons
+      };
+    });
+    
+    if (currentSeasonEdit > newTotal) {
+      setCurrentSeasonEdit(newTotal);
+    }
+  };
+
+  const handleSeasonEpisodesChange = async (seasonNum, e) => {
+    const inputValue = e.target.value;
+    
+    if (inputValue === "") {
+      setForm((prev) => ({
+        ...prev,
+        seasons: prev.seasons.map(s =>
+          s.seasonNumber === seasonNum
+            ? { ...s, totalEpisodes: "" }
+            : s
+        )
+      }));
+      return;
+    }
+    
+    const newTotal = parseInt(inputValue);
+    
+    if (isNaN(newTotal) || newTotal < 1) {
+      return;
+    }
+    
+    const currentSeason = form.seasons.find(s => s.seasonNumber === seasonNum);
+    const currentTotal = currentSeason?.episodes?.length || 0;
+    
+    if (newTotal < currentTotal) {
+      const episodesWillBeDeleted = currentSeason.episodes.slice(newTotal);
+      const episodesWithLinks = episodesWillBeDeleted.filter(ep => ep.videoUrl.trim() !== "");
+      
+      if (episodesWithLinks.length > 0) {
+        const episodeNumbers = episodesWithLinks.map(ep => ep.episodeNumber).join(", ");
+        
+        const result = await Swal.fire({
+          title: '⚠️ Cảnh báo!',
+          html: `
+            <div style="text-align: left;">
+              <p>Bạn đang giảm số tập Season ${seasonNum} từ <strong>${currentTotal}</strong> xuống <strong>${newTotal}</strong>.</p>
               <p style="color: #f59e0b; margin-top: 10px;">
                 <strong>Các tập sau đã có link video và sẽ bị xóa:</strong>
               </p>
@@ -355,58 +562,73 @@ export default function MovieManager() {
           cancelButtonText: 'Hủy bỏ',
           width: '500px'
         });
-
+        
         if (!result.isConfirmed) {
-          // User từ chối → không làm gì cả
           return;
         }
       }
     }
-
-    // ✅ Thực hiện thay đổi số tập
-    setForm((prev) => {
-      const currentEpisodes = prev.episodes || [];
-      const newEpisodes = Array.from({ length: newTotal }, (_, i) => ({
-        episodeNumber: i + 1,
-        videoUrl: currentEpisodes[i]?.videoUrl || ""
-      }));
-
-      return {
-        ...prev,
-        totalEpisodes: newTotal,
-        episodes: newEpisodes
-      };
-    });
-
+    
+    setForm((prev) => ({
+      ...prev,
+      seasons: prev.seasons.map(s =>
+        s.seasonNumber === seasonNum
+          ? {
+              ...s,
+              totalEpisodes: newTotal,
+              episodes: Array.from({ length: newTotal }, (_, i) => ({
+                episodeNumber: i + 1,
+                videoUrl: s.episodes?.[i]?.videoUrl || ""
+              }))
+            }
+          : s
+      )
+    }));
+    
     if (currentEpisodeEdit > newTotal) {
       setCurrentEpisodeEdit(newTotal);
     }
   };
 
-  const handleEpisodeUrlChange = (episodeNum, url) => {
+  const handleEpisodeUrlChange = (seasonNum, episodeNum, url) => {
     setForm((prev) => ({
       ...prev,
-      episodes: prev.episodes.map(ep =>
-        ep.episodeNumber === episodeNum
-          ? { ...ep, videoUrl: url }
-          : ep
+      seasons: prev.seasons.map(s =>
+        s.seasonNumber === seasonNum
+          ? {
+              ...s,
+              episodes: s.episodes.map(ep =>
+                ep.episodeNumber === episodeNum
+                  ? { ...ep, videoUrl: url }
+                  : ep
+              )
+            }
+          : s
       )
     }));
   };
 
   const handleInputBlur = (e) => {
     const { name, value } = e.target;
-
-    // ⭐ Nếu số tập bị để trống → tự động đổi về 1
-    if (name === "totalEpisodes" && value === "") {
+    
+    if (name === "totalParts" && value === "") {
       setForm((prev) => ({
         ...prev,
-        totalEpisodes: 1,
-        episodes: [{ episodeNumber: 1, videoUrl: prev.episodes?.[0]?.videoUrl || "" }]
+        totalParts: 1,
+        parts: [{ partNumber: 1, partTitle: "", videoUrl: "", year: "" }]
       }));
       return;
     }
-
+    
+    if (name === "totalSeasons" && value === "") {
+      setForm((prev) => ({
+        ...prev,
+        totalSeasons: 1,
+        seasons: [{ seasonNumber: 1, totalEpisodes: 1, episodes: [{ episodeNumber: 1, videoUrl: "" }] }]
+      }));
+      return;
+    }
+    
     const error = validateField(name, value);
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
@@ -420,17 +642,22 @@ export default function MovieManager() {
       if (error) newErrors[field] = error;
     });
 
-    if (form.movieType === "series") {
-      const episodeError = validateField("totalEpisodes", form.totalEpisodes);
-      if (episodeError) newErrors.totalEpisodes = episodeError;
-
-      // ✅ ĐÃ XÓA PHẦN KIỂM TRA BẮT BUỘC ĐIỀN LINK VIDEO
-      // Bây giờ có thể lưu phim bộ mà không cần điền link video ngay
-
-    } else {
-      if (!form.videoUrl.trim()) {
-        newErrors.videoUrl = "Link video là bắt buộc";
+    // Validate phim lẻ
+    if (form.movieType === "single") {
+      if (form.hasParts) {
+        const partsError = validateField("totalParts", form.totalParts);
+        if (partsError) newErrors.totalParts = partsError;
+      } else {
+        if (!form.videoUrl.trim()) {
+          newErrors.videoUrl = "Link video là bắt buộc";
+        }
       }
+    }
+
+    // Validate phim bộ
+    if (form.movieType === "series") {
+      const seasonsError = validateField("totalSeasons", form.totalSeasons);
+      if (seasonsError) newErrors.totalSeasons = seasonsError;
     }
 
     if (form.image) {
@@ -489,12 +716,21 @@ export default function MovieManager() {
       duration: movie.duration?.toString() || "",
       trailerUrl: movie.trailerUrl || "",
       movieType: movie.movieType || "single",
-      totalEpisodes: movie.totalEpisodes || 1,
-      episodes: movie.episodes || [],
+      
+      // Phim lẻ nhiều phần
+      hasParts: movie.hasParts || false,
+      totalParts: movie.totalParts || 1,
+      parts: movie.parts || [],
+      
+      // Phim bộ nhiều season
+      totalSeasons: movie.totalSeasons || 1,
+      seasons: movie.seasons || [],
     });
     setIsEditing(true);
     setShowModal(true);
     setErrors({});
+    setCurrentPartEdit(1);
+    setCurrentSeasonEdit(1);
     setCurrentEpisodeEdit(1);
   };
 
@@ -586,10 +822,15 @@ export default function MovieManager() {
       trailerUrl: "",
       description: "",
       movieType: "single",
-      totalEpisodes: 1,
-      episodes: [],
+      hasParts: false,
+      totalParts: 1,
+      parts: [],
+      totalSeasons: 1,
+      seasons: [],
     });
     setErrors({});
+    setCurrentPartEdit(1);
+    setCurrentSeasonEdit(1);
     setCurrentEpisodeEdit(1);
   };
 
@@ -717,354 +958,537 @@ export default function MovieManager() {
                       {errors.genre && <div className="error-message">{errors.genre}</div>}
                     </div>
 
+                    {/* CHỌN LOẠI PHIM */}
+                    <div className="input-group">
+                      <label className="field-label">
+                        Loại phim <span className="required">*</span>
+                      </label>
+                      <select
+                        name="movieType"
+                        value={form.movieType}
+                        onChange={handleMovieTypeChange}
+                        style={{ padding: '10px' }}
+                      >
+                        <option value="single">🎬 Phim lẻ</option>
+                        <option value="series">📺 Phim bộ</option>
+                      </select>
+                    </div>
+
+                    {/* ========== PHIM LẺ ========== */}
+                    {form.movieType === "single" && (
+                      <>
+                        {/* Checkbox: Phim có nhiều phần không? */}
+                        <div className="input-group">
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                            <input
+                              type="checkbox"
+                              checked={form.hasParts}
+                              onChange={handleHasPartsChange}
+                              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                            />
+                            <span style={{ fontSize: '14px', color: '#fff' }}>
+                              🎞️ Phim này có nhiều phần? (VD: Harry Potter, Fast & Furious)
+                            </span>
+                          </label>
+                        </div>
+
+                        {form.hasParts ? (
+                          <>
+                            {/* Nhập số phần */}
+                            <div className="input-group">
+                              <label className="field-label">
+                                Số phần <span className="required">*</span>
+                              </label>
+                              <input
+                                type="number"
+                                name="totalParts"
+                                placeholder="VD: 8 (Harry Potter có 8 phần)"
+                                value={form.totalParts}
+                                onChange={handleTotalPartsChange}
+                                onBlur={handleInputBlur}
+                                className={errors.totalParts ? "error" : ""}
+                                min="1"
+                              />
+                              {errors.totalParts && (
+                                <div className="error-message">{errors.totalParts}</div>
+                              )}
+                            </div>
+
+                            {/* Tabs chọn phần */}
+                            <div className="input-group">
+                              <label className="field-label">
+                                🎬 Nhập thông tin từng phần
+                              </label>
+                              <div className="episode-tabs">
+                                {form.parts.map((part) => (
+                                  <button
+                                    key={part.partNumber}
+                                    type="button"
+                                    className={`episode-tab ${currentPartEdit === part.partNumber ? 'active' : ''}`}
+                                    onClick={() => setCurrentPartEdit(part.partNumber)}
+                                  >
+                                    Phần {part.partNumber}
+                                    {part.videoUrl && <span className="check-icon">✓</span>}
+                                  </button>
+                                ))}
+                              </div>
+
+                              {/* Form nhập thông tin phần đang chọn */}
+                              <div style={{ marginTop: '15px', padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                                <div style={{ marginBottom: '10px' }}>
+                                  <label style={{ fontSize: '13px', color: '#aaa', display: 'block', marginBottom: '5px' }}>
+                                    Tên phần (Tùy chọn)
+                                  </label>
+                                  <input
+                                    placeholder={`VD: Harry Potter và Hòn đá Phù thủy`}
+                                    value={form.parts.find(p => p.partNumber === currentPartEdit)?.partTitle || ""}
+                                    onChange={(e) => handlePartFieldChange(currentPartEdit, 'partTitle', e.target.value)}
+                                  />
+                                </div>
+
+                                <div style={{ marginBottom: '10px' }}>
+                                  <label style={{ fontSize: '13px', color: '#aaa', display: 'block', marginBottom: '5px' }}>
+                                    Link video <span className="required">*</span>
+                                  </label>
+                                  <input
+                                    placeholder={`Nhập link video phần ${currentPartEdit}...`}
+                                    value={form.parts.find(p => p.partNumber === currentPartEdit)?.videoUrl || ""}
+                                    onChange={(e) => handlePartFieldChange(currentPartEdit, 'videoUrl', e.target.value)}
+                                  />
+                                </div>
+
+                                <div>
+                                  <label style={{ fontSize: '13px', color: '#aaa', display: 'block', marginBottom: '5px' }}>
+                                    Năm phát hành (Tùy chọn)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    placeholder={`VD: 2001`}
+                                    value={form.parts.find(p => p.partNumber === currentPartEdit)?.year || ""}
+                                    onChange={(e) => handlePartFieldChange(currentPartEdit, 'year', e.target.value)}
+                                    style={{ width: '150px' }}
+                                  />
+                                </div>
+                              </div>
+
+                              <div style={{ fontSize: '11px', color: '#888', marginTop: '8px' }}>
+                                💡 Nhấn tab "Phần X" để nhập thông tin cho từng phần. Dấu ✓ = đã có link.
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          // Phim lẻ KHÔNG có nhiều phần
+                          <div className="input-group">
+                            <label className="field-label">
+                              🎥 URL video (YouTube/Cloud) <span className="required">*</span>
+                              {isLoadingDuration && (
+                                <span style={{ color: '#ffa500', fontSize: '12px', marginLeft: '8px' }}>
+                                  ⏳ Đang lấy thông tin...
+                                </span>
+                              )}
+                            </label>
+                            <input
+                              name="videoUrl"
+                              placeholder="https://youtube.com/watch?v=... hoặc cloud link"
+                              value={form.videoUrl}
+                              onChange={handleVideoUrlChange}
+                              className={errors.videoUrl ? "error" : ""}
+                            />
+                            {errors.videoUrl && <div className="error-message">{errors.videoUrl}</div>}
+                            <div style={{ fontSize: '11px', color: '#4ade80', marginTop: '4px' }}>
+                              💡 Nhập link YouTube → tự động lấy thời lượng, năm, quốc gia & ảnh poster
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* ========== PHIM BỘ ========== */}
+                    {form.movieType === "series" && (
+                      <>
+                        {/* Nhập số season */}
+                        <div className="form-row-inline">
+                          <div className="input-group">
+                            <label className="field-label">
+                              Số Season/Phần <span className="required">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              name="totalSeasons"
+                              placeholder="VD: 4"
+                              value={form.totalSeasons}
+                              onChange={handleTotalSeasonsChange}
+                              onBlur={handleInputBlur}
+                              className={`small-input ${errors.totalSeasons ? "error" : ""}`}
+                              min="1"
+                            />
+                            {errors.totalSeasons && (
+                              <div className="error-message">{errors.totalSeasons}</div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Tabs chọn season */}
+                        <div className="input-group">
+                          <label className="field-label">
+                            📺 Chọn Season để nhập tập
+                          </label>
+                          <div className="episode-tabs">
+                            {form.seasons.map((season) => {
+                              const episodesWithLinks = season.episodes?.filter(ep => ep.videoUrl.trim() !== "").length || 0;
+                              return (
+                                <button
+                                  key={season.seasonNumber}
+                                  type="button"
+                                  className={`episode-tab ${currentSeasonEdit === season.seasonNumber ? 'active' : ''}`}
+                                  onClick={() => {
+                                    setCurrentSeasonEdit(season.seasonNumber);
+                                    setCurrentEpisodeEdit(1);
+                                  }}
+                                >
+                                  Season {season.seasonNumber}
+                                  {episodesWithLinks > 0 && (
+                                    <span className="check-icon" style={{ marginLeft: '4px' }}>
+                                      ({episodesWithLinks}/{season.totalEpisodes})
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Form nhập số tập của season đang chọn */}
+                          <div style={{ marginTop: '15px', padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                            <div style={{ marginBottom: '15px' }}>
+                              <label style={{ fontSize: '13px', color: '#aaa', display: 'block', marginBottom: '5px' }}>
+                                Số tập Season {currentSeasonEdit} <span className="required">*</span>
+                              </label>
+                              <input
+                                type="number"
+                                placeholder="VD: 25"
+                                value={form.seasons.find(s => s.seasonNumber === currentSeasonEdit)?.totalEpisodes || ""}
+                                onChange={(e) => handleSeasonEpisodesChange(currentSeasonEdit, e)}
+                                min="1"
+                                style={{ width: '150px' }}
+                              />
+                            </div>
+
+                            {/* Tabs chọn tập */}
+                            <div>
+                              <label style={{ fontSize: '13px', color: '#aaa', display: 'block', marginBottom: '8px' }}>
+                                Chọn tập để nhập link video:
+                              </label>
+                              <div className="episode-tabs" style={{ marginBottom: '10px', maxHeight: '150px', overflowY: 'auto' }}>
+                                {form.seasons.find(s => s.seasonNumber === currentSeasonEdit)?.episodes?.map((ep) => (
+                                  <button
+                                    key={ep.episodeNumber}
+                                    type="button"
+                                    className={`episode-tab ${currentEpisodeEdit === ep.episodeNumber ? 'active' : ''}`}
+                                    onClick={() => setCurrentEpisodeEdit(ep.episodeNumber)}
+                                    style={{ fontSize: '12px', padding: '6px 12px' }}
+                                  >
+                                    Tập {ep.episodeNumber}
+                                    {ep.videoUrl && <span className="check-icon">✓</span>}
+                                  </button>
+                                ))}
+                              </div>
+
+                              <input
+                                placeholder={`Nhập link video tập ${currentEpisodeEdit}...`}
+                                value={form.seasons.find(s => s.seasonNumber === currentSeasonEdit)?.episodes?.find(ep => ep.episodeNumber === currentEpisodeEdit)?.videoUrl || ""}
+                                onChange={(e) => handleEpisodeUrlChange(currentSeasonEdit, currentEpisodeEdit, e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          <div style={{ fontSize: '11px', color: '#888', marginTop: '8px' }}>
+                            💡 Chọn Season → Nhập số tập → Chọn tập → Nhập link. Dấu ✓ = đã có link. Có thể điền sau.
+                          </div>
+                        </div>
+                      </>
+                    )}
+
                     <div className="form-row-inline">
                       <div className="input-group">
                         <label className="field-label">
-                          Loại phim <span className="required">*</span>
-                        </label>
-                        <select
-                          name="movieType"
-                          value={form.movieType}
-                          onChange={handleMovieTypeChange}
-                          className="small-input"
-                          style={{ padding: '10px' }}
-                        >
-                          <option value="single">🎬 Phim lẻ</option>
-                          <option value="series">📺 Phim bộ</option>
-                        </select>
-                      </div>
-
-                      {form.movieType === "series" && (
-                        <div className="input-group">
-                          <label className="field-label">
-                            Số tập <span className="required">*</span>
-                          </label>
-                          <input
-                            type="number"
-                            name="totalEpisodes"
-                            placeholder="VD: 16"
-                            value={form.totalEpisodes}
-                            onChange={handleTotalEpisodesChange}
-                            onBlur={handleInputBlur}
-                            className={`small-input ${errors.totalEpisodes ? "error" : ""}`}
-                            min="1"
-                          />
-                          {errors.totalEpisodes && (
-                            <div className="error-message">{errors.totalEpisodes}</div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {form.movieType === "single" ? (
-                      <div className="input-group">
-                        <label className="field-label">
-                          🎥 URL video (YouTube/Cloud) <span className="required">*</span>
-                          {isLoadingDuration && (
-                            <span style={{ color: '#ffa500', fontSize: '12px', marginLeft: '8px' }}>
-                              ⏳ Đang lấy thông tin...
-                            </span>
-                          )}
+                          Thời lượng <span className="required">*</span>
                         </label>
                         <input
-                          name="videoUrl"
-                          placeholder="https://youtube.com/watch?v=... hoặc cloud link"
-                          value={form.videoUrl}
-                          onChange={handleVideoUrlChange}
-                          className={errors.videoUrl ? "error" : ""}
+                          className={`small-input ${errors.duration ? "error" : ""}`}
+                          name="duration"
+                          placeholder="VD: 120 phút"
+                          value={form.duration}
+                          onChange={handleInputChange}
+                          onBlur={handleInputBlur}
                         />
-                        {errors.videoUrl && <div className="error-message">{errors.videoUrl}</div>}
-                        <div style={{ fontSize: '11px', color: '#4ade80', marginTop: '4px' }}>
-                          💡 Nhập link YouTube → tự động lấy thời lượng, năm, quốc gia & ảnh poster
-                        </div>
+                        {errors.duration && <div className="error-message">{errors.duration}</div>}
                       </div>
-                    ) : (
                       <div className="input-group">
                         <label className="field-label">
-                          📺 Link video cho từng tập
+                          Năm <span className="required">*</span>
                         </label>
-                        <div className="episode-tabs">
-                      {form.episodes.map((ep) => (
-                        <button
-                          key={ep.episodeNumber}
-                          type="button"
-                          className={`episode-tab ${currentEpisodeEdit === ep.episodeNumber ? 'active' : ''}`}
-                          onClick={() => setCurrentEpisodeEdit(ep.episodeNumber)}
-                        >
-                          Tập {ep.episodeNumber}
-                          {ep.videoUrl && <span className="check-icon">✓</span>}
-                        </button>
-                      ))}
+                        <input
+                          className={`small-input ${errors.year ? "error" : ""}`}
+                          name="year"
+                          placeholder="VD: 2024"
+                          value={form.year}
+                          onChange={handleInputChange}
+                          onBlur={handleInputBlur}
+                        />
+                        {errors.year && <div className="error-message">{errors.year}</div>}
+                      </div>
+                      <div className="input-group">
+                        <label className="field-label">
+                          Quốc gia <span className="required">*</span>
+                        </label>
+                        <input
+                          className={`small-input ${errors.country ? "error" : ""}`}
+                          name="country"
+                          placeholder="Nhập quốc gia..."
+                          value={form.country}
+                          onChange={handleInputChange}
+                          onBlur={handleInputBlur}
+                        />
+                        {errors.country && <div className="error-message">{errors.country}</div>}
+                      </div>
                     </div>
 
-                    <input
-                      placeholder={`Nhập link video tập ${currentEpisodeEdit}...`}
-                      value={form.episodes.find(ep => ep.episodeNumber === currentEpisodeEdit)?.videoUrl || ""}
-                      onChange={(e) => handleEpisodeUrlChange(currentEpisodeEdit, e.target.value)}
-                      style={{ marginTop: '10px' }}
-                    />
+                    <div className="input-group">
+                      <label className="field-label">URL ảnh từ Internet</label>
+                      <input
+                        name="image"
+                        placeholder="https://example.com/image.jpg (hoặc để trống nếu dùng ảnh YouTube)"
+                        value={form.image}
+                        onChange={handleInputChange}
+                        onBlur={handleInputBlur}
+                        className={errors.image ? "error" : ""}
+                      />
+                      {errors.image && <div className="error-message">{errors.image}</div>}
+                    </div>
 
-                    <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
-                      💡 Nhấn tab "Tập X" để nhập link cho từng tập. Dấu ✓ = đã có link. Có thể điền sau.
+                    <div className="input-group">
+                      <label className="field-label">
+                        🎬 URL Trailer
+                        <span style={{ color: '#ffa500', fontSize: '12px', marginLeft: '8px' }}>
+                          (Hiển thị khi hover)
+                        </span>
+                      </label>
+                      <input
+                        name="trailerUrl"
+                        placeholder="https://example.com/trailer.mp4 (hoặc YouTube, Drive, Dropbox...)"
+                        value={form.trailerUrl}
+                        onChange={handleInputChange}
+                        onBlur={handleInputBlur}
+                        className={errors.trailerUrl ? "error" : ""}
+                      />
+                      {errors.trailerUrl && <div className="error-message">{errors.trailerUrl}</div>}
+                      <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
+                        💡 Hỗ trợ: mp4, webm, ogg, YouTube, Google Drive, Dropbox, hoặc bất kỳ link video nào
+                      </div>
+                    </div>
+
+                    <div className="input-group">
+                      <label className="field-label">Mô tả phim</label>
+                      <textarea
+                        name="description"
+                        placeholder="Nhập mô tả về phim..."
+                        value={form.description}
+                        onChange={handleInputChange}
+                        className={errors.description ? "error" : ""}
+                        rows="3"
+                      />
+                      {errors.description && <div className="error-message">{errors.description}</div>}
                     </div>
                   </div>
-                )}
 
-                <div className="form-row-inline">
-                  <div className="input-group">
-                    <label className="field-label">
-                      Thời lượng <span className="required">*</span>
-                    </label>
-                    <input
-                      className={`small-input ${errors.duration ? "error" : ""}`}
-                      name="duration"
-                      placeholder="VD: 120 phút"
-                      value={form.duration}
-                      onChange={handleInputChange}
-                      onBlur={handleInputBlur}
-                    />
-                    {errors.duration && <div className="error-message">{errors.duration}</div>}
+                  <div className="form-buttons">
+                    {isEditing ? (
+                      <button
+                        className={`save-btn ${hasErrors ? "disabled" : ""}`}
+                        onClick={handleUpdate}
+                        disabled={hasErrors}
+                      >
+                        Cập nhật phim
+                      </button>
+                    ) : (
+                      <button
+                        className={`save-btn ${hasErrors ? "disabled" : ""}`}
+                        onClick={handleAdd}
+                        disabled={hasErrors}
+                      >
+                        Thêm phim mới
+                      </button>
+                    )}
+                    <button type="button" className="cancel-btn" onClick={closeModal}>
+                      Hủy bỏ
+                    </button>
                   </div>
-                  <div className="input-group">
-                    <label className="field-label">
-                      Năm <span className="required">*</span>
-                    </label>
-                    <input
-                      className={`small-input ${errors.year ? "error" : ""}`}
-                      name="year"
-                      placeholder="VD: 2024"
-                      value={form.year}
-                      onChange={handleInputChange}
-                      onBlur={handleInputBlur}
-                    />
-                    {errors.year && <div className="error-message">{errors.year}</div>}
-                  </div>
-                  <div className="input-group">
-                    <label className="field-label">
-                      Quốc gia <span className="required">*</span>
-                    </label>
-                    <input
-                      className={`small-input ${errors.country ? "error" : ""}`}
-                      name="country"
-                      placeholder="Nhập quốc gia..."
-                      value={form.country}
-                      onChange={handleInputChange}
-                      onBlur={handleInputBlur}
-                    />
-                    {errors.country && <div className="error-message">{errors.country}</div>}
-                  </div>
-                </div>
-
-                <div className="input-group">
-                  <label className="field-label">URL ảnh từ Internet</label>
-                  <input
-                    name="image"
-                    placeholder="https://example.com/image.jpg (hoặc để trống nếu dùng ảnh YouTube)"
-                    value={form.image}
-                    onChange={handleInputChange}
-                    onBlur={handleInputBlur}
-                    className={errors.image ? "error" : ""}
-                  />
-                  {errors.image && <div className="error-message">{errors.image}</div>}
-                </div>
-
-                <div className="input-group">
-                  <label className="field-label">
-                    🎬 URL Trailer
-                    <span style={{ color: '#ffa500', fontSize: '12px', marginLeft: '8px' }}>
-                      (Hiển thị khi hover)
-                    </span>
-                  </label>
-                  <input
-                    name="trailerUrl"
-                    placeholder="https://example.com/trailer.mp4 (hoặc YouTube, Drive, Dropbox...)"
-                    value={form.trailerUrl}
-                    onChange={handleInputChange}
-                    onBlur={handleInputBlur}
-                    className={errors.trailerUrl ? "error" : ""}
-                  />
-                  {errors.trailerUrl && <div className="error-message">{errors.trailerUrl}</div>}
-                  <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
-                    💡 Hỗ trợ: mp4, webm, ogg, YouTube, Google Drive, Dropbox, hoặc bất kỳ link video nào
-                  </div>
-                </div>
-
-                <div className="input-group">
-                  <label className="field-label">Mô tả phim</label>
-                  <textarea
-                    name="description"
-                    placeholder="Nhập mô tả về phim..."
-                    value={form.description}
-                    onChange={handleInputChange}
-                    className={errors.description ? "error" : ""}
-                    rows="3"
-                  />
-                  {errors.description && <div className="error-message">{errors.description}</div>}
                 </div>
               </div>
-
-              <div className="form-buttons">
-                {isEditing ? (
-                  <button
-                    className={`save-btn ${hasErrors ? "disabled" : ""}`}
-                    onClick={handleUpdate}
-                    disabled={hasErrors}
-                  >
-                    Cập nhật phim
-                  </button>
-                ) : (
-                  <button
-                    className={`save-btn ${hasErrors ? "disabled" : ""}`}
-                    onClick={handleAdd}
-                    disabled={hasErrors}
-                  >
-                    Thêm phim mới
-                  </button>
-                )}
-                <button type="button" className="cancel-btn" onClick={closeModal}>
-                  Hủy bỏ
-                </button>
-              </div>
-            </div>
+            </form>
           </div>
-        </form>
+        </div>
+      )}
+
+      <div className="movie-table">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Ảnh</th>
+              <th>Tên phim</th>
+              <th>Loại</th>
+              <th>Thể loại</th>
+              <th>Quốc gia</th>
+              <th>Năm</th>
+              <th>Video</th>
+              <th>Trailer</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {movies.map((m, i) => (
+              <tr key={m.id}>
+                <td>{i + 1}</td>
+                <td>
+                  {m.image && (
+                    <img
+                      src={m.image}
+                      alt={m.title}
+                      className="poster"
+                      onError={(e) => (e.target.style.display = "none")}
+                    />
+                  )}
+                </td>
+                <td className="title-cell">
+                  <strong>{m.title}</strong>
+                  {m.engTitle && <div className="eng-title">{m.engTitle}</div>}
+                </td>
+                <td>
+                  {m.movieType === "series" ? (
+                    <span style={{ color: '#4ade80', fontSize: '12px', fontWeight: '600' }}>
+                      📺 Bộ ({m.totalSeasons} season)
+                    </span>
+                  ) : m.hasParts ? (
+                    <span style={{ color: '#fbbf24', fontSize: '12px', fontWeight: '600' }}>
+                      🎞️ Lẻ ({m.totalParts} phần)
+                    </span>
+                  ) : (
+                    <span style={{ color: '#888', fontSize: '12px' }}>🎬 Lẻ</span>
+                  )}
+                </td>
+                <td>{m.genre}</td>
+                <td>{m.country}</td>
+                <td>{m.year}</td>
+                <td>
+                  {m.movieType === "series" ? (
+                    <span style={{ color: '#4ade80', fontSize: '11px' }}>
+                      {(() => {
+                        let totalEpisodes = 0;
+                        let filledEpisodes = 0;
+                        m.seasons?.forEach(s => {
+                          totalEpisodes += s.totalEpisodes;
+                          filledEpisodes += s.episodes?.filter(ep => ep.videoUrl).length || 0;
+                        });
+                        return `${filledEpisodes}/${totalEpisodes} tập`;
+                      })()}
+                    </span>
+                  ) : m.hasParts ? (
+                    <span style={{ color: '#fbbf24', fontSize: '11px' }}>
+                      {m.parts?.filter(p => p.videoUrl).length || 0}/{m.totalParts} phần
+                    </span>
+                  ) : (
+                    m.videoUrl && (
+                      <a href={m.videoUrl} target="_blank" rel="noopener noreferrer" className="watch-link">
+                        Xem
+                      </a>
+                    )
+                  )}
+                </td>
+                <td>
+                  {m.trailerUrl ? (
+                    <span style={{ color: '#4ade80', fontSize: '12px', fontWeight: '600' }}>✓ Có</span>
+                  ) : (
+                    <span style={{ color: '#888', fontSize: '12px' }}>-</span>
+                  )}
+                </td>
+                <td>
+                  <div className="action-buttons">
+                    <button className="edit-btn" onClick={() => handleEdit(m)}>
+                      Sửa
+                    </button>
+                    <button className="delete-btn" onClick={() => handleDelete(m.id)}>
+                      Xóa
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {movies.length === 0 && (
+              <tr>
+                <td colSpan={10} className="no-movie">
+                  Không có phim nào
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
+
+      <style>{`
+        .episode-tabs {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-bottom: 10px;
+        }
+
+        .episode-tab {
+          padding: 8px 14px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .episode-tab:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .episode-tab.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-color: #667eea;
+          color: #fff;
+          font-weight: 600;
+        }
+
+        .episode-tab .check-icon {
+          color: #4ade80;
+          font-size: 14px;
+          font-weight: bold;
+        }
+
+        .episode-tab.active .check-icon {
+          color: #fff;
+        }
+
+        .form-row-inline {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 10px;
+        }
+
+        .small-input {
+          width: 100%;
+        }
+      `}</style>
     </div>
-  )}
-
-  <div className="movie-table">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Ảnh</th>
-          <th>Tên phim</th>
-          <th>Loại</th>
-          <th>Thể loại</th>
-          <th>Quốc gia</th>
-          <th>Năm</th>
-          <th>Video</th>
-          <th>Trailer</th>
-          <th>Thao tác</th>
-        </tr>
-      </thead>
-      <tbody>
-        {movies.map((m, i) => (
-          <tr key={m.id}>
-            <td>{i + 1}</td>
-            <td>
-              {m.image && (
-                <img
-                  src={m.image}
-                  alt={m.title}
-                  className="poster"
-                  onError={(e) => (e.target.style.display = "none")}
-                />
-              )}
-            </td>
-            <td className="title-cell">
-              <strong>{m.title}</strong>
-              {m.engTitle && <div className="eng-title">{m.engTitle}</div>}
-            </td>
-            <td>
-              {m.movieType === "series" ? (
-                <span style={{ color: '#4ade80', fontSize: '12px', fontWeight: '600' }}>
-                  📺 Bộ ({m.totalEpisodes} tập)
-                </span>
-              ) : (
-                <span style={{ color: '#888', fontSize: '12px' }}>🎬 Lẻ</span>
-              )}
-            </td>
-            <td>{m.genre}</td>
-            <td>{m.country}</td>
-            <td>{m.year}</td>
-            <td>
-              {m.movieType === "series" ? (
-                <span style={{ color: '#4ade80', fontSize: '11px' }}>
-                  {m.episodes?.filter(ep => ep.videoUrl).length || 0}/{m.totalEpisodes} tập
-                </span>
-              ) : (
-                m.videoUrl && (
-                  <a href={m.videoUrl} target="_blank" rel="noopener noreferrer" className="watch-link">
-                    Xem
-                  </a>
-                )
-              )}
-            </td>
-            <td>
-              {m.trailerUrl ? (
-                <span style={{ color: '#4ade80', fontSize: '12px', fontWeight: '600' }}>✓ Có</span>
-              ) : (
-                <span style={{ color: '#888', fontSize: '12px' }}>-</span>
-              )}
-            </td>
-            <td>
-              <div className="action-buttons">
-                <button className="edit-btn" onClick={() => handleEdit(m)}>
-                  Sửa
-                </button>
-                <button className="delete-btn" onClick={() => handleDelete(m.id)}>
-                  Xóa
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-        {movies.length === 0 && (
-          <tr>
-            <td colSpan={10} className="no-movie">
-              Không có phim nào
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
-
-  <style>{`
-    .episode-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .episode-tab {
-      padding: 8px 14px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .episode-tab:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .episode-tab.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-color: #667eea;
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .episode-tab .check-icon {
-      color: #4ade80;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .episode-tab.active .check-icon {
-      color: #fff;
-    }
-  `}</style>
-</div>
-);
+  );
 }
