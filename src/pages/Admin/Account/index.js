@@ -3,7 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import "./Account.css";
 
-const BASE_URL = "https://69538a2aa319a928023bc426.mockapi.io/account";
+const BASE_URL = "https://69538a2aa319a928023bc426.mockapi.io/";
 
 export default function AccountManager() {
   const [users, setUsers] = useState([]);
