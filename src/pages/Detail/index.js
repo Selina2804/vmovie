@@ -278,7 +278,7 @@ const MovieDetail = () => {
   // ⭐ TÍNH TỔNG SỐ TẬP ĐÃ CÓ LINK (HỖ TRỢ CẢ CŨ & MỚI)
   const getTotalEpisodesWithLink = () => {
     if (movie.movieType !== "series") return 0;
-    
+
     if (movie.seasons && movie.seasons.length > 0) {
       // Phim bộ nhiều season (MỚI)
       let total = 0;
@@ -291,13 +291,13 @@ const MovieDetail = () => {
       // Phim bộ 1 season (CŨ)
       return movie.episodes.filter(ep => ep.videoUrl?.trim()).length;
     }
-    
+
     return 0;
   };
 
   const getTotalEpisodes = () => {
     if (movie.movieType !== "series") return 0;
-    
+
     if (movie.seasons && movie.seasons.length > 0) {
       // Phim bộ nhiều season (MỚI)
       let total = 0;
@@ -392,9 +392,9 @@ const MovieDetail = () => {
             {/* ⭐ HIỂN THỊ LOẠI PHIM */}
             <p>
               <strong>Loại phim:</strong>{" "}
-              {movie.movieType === "series" 
+              {movie.movieType === "series"
                 ? movie.seasons && movie.seasons.length > 0
-                  ? `📺 Phim bộ (${movie.totalSeasons} season)` 
+                  ? `📺 Phim bộ (${movie.totalSeasons} season)`
                   : `📺 Phim bộ (${movie.totalEpisodes} tập)`
                 : movie.hasParts && movie.totalParts > 1
                   ? `🎞️ Phim lẻ (${movie.totalParts} phần)`
@@ -621,16 +621,17 @@ const MovieDetail = () => {
   );
 };
 
-// 🎬 SEASON & EPISODE DROPDOWN COMPONENT - MỚI 100%
+// 🎬 SEASON & EPISODE DROPDOWN COMPONENT - GRID STYLE
+// 🎬 SEASON & EPISODE DROPDOWN COMPONENT - GRID STYLE (CÓ DROPDOWN)
 const SeasonDropdown = ({ movie, navigate }) => {
-  const [openSeason, setOpenSeason] = useState(null);
   const [selectedSeason, setSelectedSeason] = useState(1);
+  const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenSeason(null);
+        setIsOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -657,131 +658,111 @@ const SeasonDropdown = ({ movie, navigate }) => {
     return total;
   };
 
-  const handleSeasonToggle = (seasonNumber) => {
-    setSelectedSeason(seasonNumber);
-    setOpenSeason(openSeason === seasonNumber ? null : seasonNumber);
-  };
-
   const handleEpisodeClick = (seasonNumber, episodeNumber) => {
     navigate(`/xem-phim/${movie.id}?season=${seasonNumber}&episode=${episodeNumber}`);
+    setIsOpen(false);
   };
+
+  const handleSeasonSelect = (seasonNumber) => {
+    setSelectedSeason(seasonNumber);
+    // Không đóng dropdown khi chọn season
+  };
+
+  const currentSeasonEpisodes = getSeasonEpisodesWithLink(movie.seasons[selectedSeason - 1] || movie.seasons[0]);
 
   return (
     <>
-      <div className="season-dropdown-container" ref={dropdownRef}>
-        <div className="season-dropdown-header">Danh sách phần</div>
-        
-        {movie.seasons.map((season, index) => {
-          const seasonNumber = index + 1;
-          const episodesWithLink = getSeasonEpisodesWithLink(season);
-          const isOpen = openSeason === seasonNumber;
-          
-          return (
-            <div key={season.seasonNumber || seasonNumber} className="season-item-wrapper">
-              <div
-                className={`season-item ${isOpen ? 'active' : ''}`}
-                onClick={() => handleSeasonToggle(seasonNumber)}
-              >
-                <div className="season-item-left">
-                  <span className="hamburger-icon">☰</span>
-                  <span className="season-item-text">Phần {seasonNumber}</span>
-                </div>
-                <span className="season-arrow">{isOpen ? "▲" : "▼"}</span>
-              </div>
+      <div className="season-dropdown-wrapper" ref={dropdownRef}>
+        {/* Dropdown Button */}
+        <button
+          className="season-dropdown-button"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <span className="hamburger-icon">☰</span>
+          <span>Phần {selectedSeason}</span>
+          <span className="dropdown-arrow">{isOpen ? "▲" : "▼"}</span>
+        </button>
 
-              {isOpen && (
-                <div className="episode-list">
-                  {episodesWithLink.length === 0 ? (
-                    <div className="no-episodes">Chưa có tập nào</div>
-                  ) : (
-                    episodesWithLink.map((episode) => (
-                      <div
-                        key={episode.episodeNumber}
-                        className="episode-item"
-                        onClick={() => handleEpisodeClick(seasonNumber, episode.episodeNumber)}
-                      >
-                        <span className="play-icon">▶</span>
-                        <span className="episode-text">Tập {episode.episodeNumber}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
+        {/* Dropdown Content */}
+        {isOpen && (
+          <div className="season-dropdown-content">
+            {/* Season List */}
+            <div className="season-list-header">Danh sách phần</div>
+            <div className="season-list">
+              {movie.seasons.map((season, index) => {
+                const seasonNumber = index + 1;
+                return (
+                  <div
+                    key={seasonNumber}
+                    className={`season-list-item ${selectedSeason === seasonNumber ? 'active' : ''}`}
+                    onClick={() => handleSeasonSelect(seasonNumber)}
+                  >
+                    Phần {seasonNumber}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Episode Grid */}
+            <div className="episode-grid">
+              {currentSeasonEpisodes.length === 0 ? (
+                <div className="no-episodes">Chưa có tập nào</div>
+              ) : (
+                currentSeasonEpisodes.map((episode) => (
+                  <button
+                    key={episode.episodeNumber}
+                    className="episode-button"
+                    onClick={() => handleEpisodeClick(selectedSeason, episode.episodeNumber)}
+                  >
+                    ▶ Tập {episode.episodeNumber}
+                  </button>
+                ))
               )}
             </div>
-          );
-        })}
+          </div>
+        )}
       </div>
 
-      <div className="season-status-info">
-        📺 {movie.totalSeasons} Season • {getTotalEpisodesWithLink()}/{getTotalEpisodes()} tập
+      <div className={`season-status-info ${getTotalEpisodesWithLink() >= getTotalEpisodes() ? 'complete' : 'incomplete'}`}>
+        {getTotalEpisodesWithLink() < getTotalEpisodes() ? (
+          <>
+            <span className="loading-spinner"></span>
+            Đã chiếu: {getTotalEpisodesWithLink()}/{getTotalEpisodes()} tập
+          </>
+        ) : (
+          <>
+            ✅ Hoàn thành • {getTotalEpisodesWithLink()}/{getTotalEpisodes()} tập
+          </>
+        )}
       </div>
 
       <style>{`
-        .season-dropdown-container {
+        .season-dropdown-wrapper {
           margin-top: 12px;
+          position: relative;
+           z-index: 999;  
+        }
+
+        .season-dropdown-button {
+          width: 100%;
+          padding: 12px 16px;
           background: rgba(30, 32, 46, 0.95);
           border: 1px solid rgba(255, 255, 255, 0.15);
           border-radius: 8px;
-          overflow: hidden;
-          backdrop-filter: blur(10px);
-          max-height: 400px;
-          overflow-y: auto;
-        }
-
-        .season-dropdown-container::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .season-dropdown-container::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.03);
-        }
-
-        .season-dropdown-container::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 3px;
-        }
-
-        .season-dropdown-header {
-          padding: 10px 16px;
-          background: rgba(255, 255, 255, 0.03);
-          color: rgba(255, 255, 255, 0.5);
-          font-size: 11px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .season-item-wrapper {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .season-item-wrapper:last-child {
-          border-bottom: none;
-        }
-
-        .season-item {
-          padding: 12px 16px;
+          color: #fff;
+          font-size: 14px;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s;
           display: flex;
+          align-items: center;
           justify-content: space-between;
-          align-items: center;
-        }
-
-        .season-item:hover {
-          background: rgba(255, 255, 255, 0.08);
-        }
-
-        .season-item.active {
-          background: rgba(139, 92, 246, 0.15);
-          border-left: 3px solid #8b5cf6;
-        }
-
-        .season-item-left {
-          display: flex;
-          align-items: center;
           gap: 10px;
+          transition: all 0.2s;
+        }
+
+        .season-dropdown-button:hover {
+          background: rgba(40, 42, 56, 0.95);
+          border-color: rgba(255, 255, 255, 0.25);
         }
 
         .hamburger-icon {
@@ -789,80 +770,212 @@ const SeasonDropdown = ({ movie, navigate }) => {
           color: rgba(255, 255, 255, 0.7);
         }
 
-        .season-item-text {
-          color: #fff;
-          font-weight: 500;
+        .dropdown-arrow {
+          font-size: 10px;
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+        .season-dropdown-content {
+          position: absolute;
+          top: calc(100% + 8px);
+          left: 0;
+          right: 0;
+          background: rgba(30, 32, 46, 0.98);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: 12px;
+          overflow: hidden;
+          z-index:9999;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+          max-height: 450px;
+          display: flex;
+          animation: dropdownSlide 0.2s ease;
+        }
+
+        @keyframes dropdownSlide {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .season-list-header {
+          padding: 12px 16px;
+          background: rgba(255, 255, 255, 0.03);
+          color: rgba(255, 255, 255, 0.5);
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 40%;
+          z-index: 1;
+        }
+
+        .season-list {
+          width: 40%;
+          background: rgba(0, 0, 0, 0.2);
+          border-right: 1px solid rgba(255, 255, 255, 0.08);
+          overflow-y: auto;
+          padding-top: 45px;
+        }
+
+        .season-list::-webkit-scrollbar {
+          width: 4px;
+        }
+
+        .season-list::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 2px;
+        }
+
+        .season-list-item {
+          padding: 14px 16px;
+          color: rgba(255, 255, 255, 0.7);
           font-size: 14px;
+          cursor: pointer;
+          transition: all 0.15s;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .season-list-item:hover {
+          background: rgba(255, 255, 255, 0.05);
+          color: #fff;
+        }
+
+        .season-list-item.active {
+          background: linear-gradient(90deg, rgba(255, 193, 7, 0.2) 0%, transparent 100%);
+          color: #ffc107;
+          font-weight: 600;
+          border-left: 3px solid #ffc107;
+        }
+
+        .episode-grid {
+          flex: 1;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+          padding: 16px;
+          overflow-y: auto;
+          max-height: 450px;
+          align-content: start;
+        }
+
+        .episode-grid::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .episode-grid::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.03);
+        }
+
+        .episode-grid::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 3px;
+        }
+
+        .episode-button {
+          padding: 12px 14px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: left;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .episode-button:hover {
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%);
+          border-color: rgba(139, 92, 246, 0.5);
+          color: #fff;
+          transform: translateX(4px);
+        }
+
+        .no-episodes {
+          grid-column: 1 / -1;
+          padding: 32px;
+          text-align: center;
+          color: rgba(255, 255, 255, 0.4);
+          font-size: 14px;
+          font-style: italic;
+        }
+
+     .season-status-info {
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
 }
-          .season-arrow {
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.5);
-    transition: transform 0.2s;
-  }
 
-  .episode-list {
-    background: rgba(0, 0, 0, 0.3);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-  }
+.season-status-info.incomplete {
+  background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%);
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
+}
 
-  .episode-item {
-    padding: 10px 16px 10px 40px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-  }
+.season-status-info.complete {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
+}
 
-  .episode-item:last-child {
-    border-bottom: none;
-  }
+.loading-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
 
-  .episode-item:hover {
-    background: rgba(99, 102, 241, 0.2);
-    padding-left: 45px;
-  }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
-  .play-icon {
-    color: #6366f1;
-    font-size: 10px;
-  }
+        @media (max-width: 768px) {
+          .season-dropdown-content {
+            max-height: 380px;
+          }
 
-  .episode-text {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 13px;
-    font-weight: 500;
-  }
+          .season-list {
+            width: 35%;
+          }
 
-  .no-episodes {
-    padding: 16px;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 13px;
-    font-style: italic;
-  }
+          .episode-grid {
+            grid-template-columns: 1fr;
+            gap: 6px;
+            padding: 12px;
+          }
 
-  .season-status-info {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 13px;
-    text-align: center;
-    margin-top: 12px;
-    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
-  }
-
-  @media (max-width: 768px) {
-    .season-dropdown-container {
-      max-height: 300px;
-    }
-  }
-`}</style>
-</>
-);
+          .episode-button {
+            padding: 10px 12px;
+            font-size: 12px;
+          }
+        }
+      `}</style>
+    </>
+  );
 };
 
 const CommentForm = ({ user, commentText, setCommentText, commentRating, setCommentRating, isSubmitting, onSubmit }) => (
@@ -1000,14 +1113,14 @@ const CommentItem = ({ comment, user, onDelete, onEdit, onLike, formatTimeAgo })
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.content);
   const isOwner = user && (user.id === comment.userId || user.email === comment.userId);
-  
+
   const handleSaveEdit = () => {
     if (editText.trim()) {
       onEdit(comment.id, editText.trim());
       setIsEditing(false);
     }
   };
-  
+
   return (
     <div className="comment-item">
       <img
@@ -1227,4 +1340,3 @@ const CommentItem = ({ comment, user, onDelete, onEdit, onLike, formatTimeAgo })
 };
 
 export default MovieDetail;
-          

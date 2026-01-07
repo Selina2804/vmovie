@@ -1,5 +1,5 @@
 /* ============================================
-   🎬 ALL MOVIES - 4 MÙA CỰC ĐẸP NÂNG CẤP
+   🎬 ALL MOVIES - 4 MÙA CỰC ĐẸP TỰ ĐỘNG
    ============================================ */
 
 .all-movies-page {
@@ -11,10 +11,18 @@
 }
 
 /* ============================================
-   🌸 MÙA XUÂN - SPRING (Hoa anh đào rơi tự nhiên)
+   🌸 MÙA XUÂN - SPRING (Hoa anh đào rơi chân thực)
    ============================================ */
 .all-movies-page[data-season="spring"] {
-  background: linear-gradient(135deg, #ffeef8 0%, #ffe8f5 30%, #fff5fa 70%, #ffeef8 100%);
+  background: 
+    linear-gradient(180deg, 
+      #ffeef8 0%, 
+      #ffe8f5 20%,
+      #fff0f7 40%,
+      #ffe8f5 60%,
+      #fff5fa 80%,
+      #ffeef8 100%
+    );
 }
 
 .all-movies-page[data-season="spring"]::before {
@@ -22,416 +30,586 @@
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(circle at 20% 30%, rgba(255, 182, 193, 0.4), transparent 60%),
-    radial-gradient(circle at 80% 70%, rgba(255, 192, 203, 0.35), transparent 60%),
-    radial-gradient(circle at 50% 50%, rgba(255, 220, 230, 0.3), transparent 70%);
-  animation: springGlow 10s ease-in-out infinite;
+    radial-gradient(ellipse at 20% 20%, rgba(255, 182, 193, 0.6), transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(255, 192, 203, 0.5), transparent 55%),
+    radial-gradient(ellipse at 40% 70%, rgba(255, 220, 230, 0.4), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(255, 182, 193, 0.45), transparent 50%);
+  animation: springBreeze 15s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
 }
 
-@keyframes springGlow {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
+@keyframes springBreeze {
+  0%, 100% { 
+    opacity: 0.8; 
+    transform: scale(1) rotate(0deg); 
+  }
+  25% { 
+    opacity: 0.95; 
+    transform: scale(1.05) rotate(2deg); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.12) rotate(-2deg); 
+  }
+  75% { 
+    opacity: 0.9; 
+    transform: scale(1.08) rotate(1deg); 
+  }
 }
 
-/* Nhiều lớp hoa bay với timing khác nhau */
+/* Hoa rơi layer 1 - rơi theo đường cong tự nhiên */
 .all-movies-page[data-season="spring"]::after {
   content: '🌸';
   position: fixed;
-  font-size: 35px;
-  top: -100px;
+  font-size: 42px;
+  top: -120px;
   left: 5%;
-  animation: petal1 18s linear infinite;
+  animation: petalFall1 20s ease-in infinite;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 10px rgba(255, 182, 193, 0.8));
+  filter: drop-shadow(0 0 15px rgba(255, 182, 193, 0.9)) brightness(1.1);
   opacity: 0;
 }
 
-@keyframes petal1 {
+@keyframes petalFall1 {
   0% { 
-    transform: translate(0, 0) rotate(0deg); 
+    transform: translate(0, 0) rotate(0deg) scale(1); 
     opacity: 0;
   }
-  5% { opacity: 1; }
-  20% { transform: translate(-60px, 25vh) rotate(120deg); }
-  40% { transform: translate(40px, 50vh) rotate(240deg); }
-  60% { transform: translate(-70px, 75vh) rotate(360deg); }
-  80% { transform: translate(50px, 100vh) rotate(480deg); }
-  95% { opacity: 0.3; }
+  3% { opacity: 1; }
+  10% { transform: translate(-80px, 12vh) rotate(90deg) scale(0.95); }
+  20% { transform: translate(60px, 28vh) rotate(180deg) scale(1.05); }
+  30% { transform: translate(-100px, 45vh) rotate(270deg) scale(0.9); }
+  40% { transform: translate(70px, 62vh) rotate(360deg) scale(1); }
+  50% { transform: translate(-90px, 78vh) rotate(450deg) scale(0.95); }
+  60% { transform: translate(80px, 92vh) rotate(540deg) scale(1.02); }
+  70% { transform: translate(-70px, 108vh) rotate(630deg) scale(0.92); }
+  80% { transform: translate(50px, 122vh) rotate(720deg) scale(0.98); }
+  90% { transform: translate(-40px, 135vh) rotate(810deg) scale(0.88); }
+  97% { opacity: 0.4; }
   100% { 
-    transform: translate(20px, 130vh) rotate(600deg); 
+    transform: translate(30px, 150vh) rotate(900deg) scale(0.8); 
     opacity: 0;
   }
 }
 
-/* Layer 2 - nhiều hoa hơn */
+/* Layer 2 */
 .all-movies-page[data-season="spring"] .filter-wrapper::before {
   content: '🌸';
   position: fixed;
-  font-size: 42px;
-  top: -80px;
-  left: 25%;
-  animation: petal2 15s linear infinite 3s;
+  font-size: 38px;
+  top: -100px;
+  left: 22%;
+  animation: petalFall2 18s ease-in infinite 4s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 8px rgba(255, 192, 203, 0.7));
+  filter: drop-shadow(0 0 12px rgba(255, 192, 203, 0.85)) brightness(1.05);
   opacity: 0;
 }
 
-@keyframes petal2 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  25% { transform: translate(80px, 30vh) rotate(-150deg); }
-  50% { transform: translate(-50px, 60vh) rotate(-300deg); }
-  75% { transform: translate(90px, 90vh) rotate(-450deg); }
-  95% { opacity: 0.2; }
-  100% { transform: translate(-40px, 130vh) rotate(-600deg); opacity: 0; }
+@keyframes petalFall2 {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+  4% { opacity: 1; }
+  12% { transform: translate(95px, 15vh) rotate(-110deg) scale(1.08); }
+  24% { transform: translate(-75px, 32vh) rotate(-220deg) scale(0.92); }
+  36% { transform: translate(110px, 50vh) rotate(-330deg) scale(1.02); }
+  48% { transform: translate(-85px, 68vh) rotate(-440deg) scale(0.95); }
+  60% { transform: translate(95px, 85vh) rotate(-550deg) scale(1.05); }
+  72% { transform: translate(-80px, 102vh) rotate(-660deg) scale(0.9); }
+  84% { transform: translate(70px, 118vh) rotate(-770deg) scale(0.97); }
+  96% { opacity: 0.3; }
+  100% { transform: translate(-50px, 150vh) rotate(-880deg) scale(0.85); opacity: 0; }
 }
 
 /* Layer 3 */
 .all-movies-page[data-season="spring"] .filter-wrapper::after {
   content: '🌸';
   position: fixed;
-  font-size: 38px;
-  top: -90px;
-  left: 45%;
-  animation: petal3 20s linear infinite 6s;
+  font-size: 45px;
+  top: -110px;
+  left: 44%;
+  animation: petalFall3 22s ease-in infinite 8s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 12px rgba(255, 182, 193, 0.9));
+  filter: drop-shadow(0 0 18px rgba(255, 182, 193, 1)) brightness(1.15);
   opacity: 0;
 }
 
-@keyframes petal3 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  22% { transform: translate(-100px, 28vh) rotate(180deg); }
-  45% { transform: translate(60px, 55vh) rotate(360deg); }
-  68% { transform: translate(-80px, 82vh) rotate(540deg); }
-  90% { transform: translate(40px, 110vh) rotate(720deg); }
-  95% { opacity: 0.25; }
-  100% { transform: translate(-30px, 130vh) rotate(900deg); opacity: 0; }
+@keyframes petalFall3 {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+  3.5% { opacity: 1; }
+  11% { transform: translate(-120px, 14vh) rotate(140deg) scale(0.88); }
+  22% { transform: translate(90px, 30vh) rotate(280deg) scale(1.1); }
+  33% { transform: translate(-105px, 48vh) rotate(420deg) scale(0.94); }
+  44% { transform: translate(115px, 66vh) rotate(560deg) scale(1.05); }
+  55% { transform: translate(-95px, 83vh) rotate(700deg) scale(0.9); }
+  66% { transform: translate(100px, 100vh) rotate(840deg) scale(1.02); }
+  77% { transform: translate(-85px, 116vh) rotate(980deg) scale(0.92); }
+  88% { transform: translate(75px, 132vh) rotate(1120deg) scale(0.96); }
+  96% { opacity: 0.35; }
+  100% { transform: translate(-60px, 150vh) rotate(1260deg) scale(0.82); opacity: 0; }
 }
 
 /* Layer 4 */
 .all-movies-page[data-season="spring"] h2::before {
   content: '🌸';
   position: fixed;
-  font-size: 30px;
-  top: -70px;
-  left: 65%;
-  animation: petal4 17s linear infinite 9s;
+  font-size: 35px;
+  top: -95px;
+  left: 63%;
+  animation: petalFall4 19s ease-in infinite 2s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 8px rgba(255, 192, 203, 0.6));
+  filter: drop-shadow(0 0 10px rgba(255, 192, 203, 0.8)) brightness(1.08);
   opacity: 0;
 }
 
-@keyframes petal4 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  25% { transform: translate(70px, 30vh) rotate(-120deg); }
-  50% { transform: translate(-40px, 60vh) rotate(-240deg); }
-  75% { transform: translate(60px, 90vh) rotate(-360deg); }
-  95% { opacity: 0.3; }
-  100% { transform: translate(-50px, 130vh) rotate(-480deg); opacity: 0; }
+@keyframes petalFall4 {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+  4% { opacity: 1; }
+  13% { transform: translate(85px, 16vh) rotate(-95deg) scale(1.03); }
+  26% { transform: translate(-65px, 34vh) rotate(-190deg) scale(0.89); }
+  39% { transform: translate(95px, 52vh) rotate(-285deg) scale(1.08); }
+  52% { transform: translate(-75px, 70vh) rotate(-380deg) scale(0.93); }
+  65% { transform: translate(88px, 87vh) rotate(-475deg) scale(1.01); }
+  78% { transform: translate(-70px, 104vh) rotate(-570deg) scale(0.91); }
+  91% { transform: translate(60px, 120vh) rotate(-665deg) scale(0.95); }
+  97% { opacity: 0.28; }
+  100% { transform: translate(-55px, 150vh) rotate(-760deg) scale(0.84); opacity: 0; }
 }
 
 /* Layer 5 */
 .all-movies-page[data-season="spring"] h2::after {
   content: '🌸';
   position: fixed;
-  font-size: 33px;
-  top: -85px;
-  left: 82%;
-  animation: petal5 19s linear infinite 2s;
+  font-size: 40px;
+  top: -105px;
+  left: 80%;
+  animation: petalFall5 21s ease-in infinite 6s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 10px rgba(255, 182, 193, 0.85));
+  filter: drop-shadow(0 0 14px rgba(255, 182, 193, 0.95)) brightness(1.12);
   opacity: 0;
 }
 
-@keyframes petal5 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  20% { transform: translate(-90px, 25vh) rotate(150deg); }
-  42% { transform: translate(50px, 52vh) rotate(300deg); }
-  65% { transform: translate(-70px, 78vh) rotate(450deg); }
-  88% { transform: translate(45px, 105vh) rotate(600deg); }
-  95% { opacity: 0.2; }
-  100% { transform: translate(-35px, 130vh) rotate(750deg); opacity: 0; }
+@keyframes petalFall5 {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+  3.2% { opacity: 1; }
+  10.5% { transform: translate(-110px, 13vh) rotate(125deg) scale(0.91); }
+  21% { transform: translate(78px, 29vh) rotate(250deg) scale(1.07); }
+  31.5% { transform: translate(-98px, 46vh) rotate(375deg) scale(0.88); }
+  42% { transform: translate(105px, 64vh) rotate(500deg) scale(1.04); }
+  52.5% { transform: translate(-88px, 81vh) rotate(625deg) scale(0.93); }
+  63% { transform: translate(95px, 98vh) rotate(750deg) scale(1.01); }
+  73.5% { transform: translate(-80px, 114vh) rotate(875deg) scale(0.9); }
+  84% { transform: translate(68px, 129vh) rotate(1000deg) scale(0.96); }
+  94.5% { transform: translate(-58px, 143vh) rotate(1125deg) scale(0.87); }
+  97.5% { opacity: 0.32; }
+  100% { transform: translate(45px, 150vh) rotate(1250deg) scale(0.81); opacity: 0; }
 }
 
-/* Layer 6 - nhóm hoa */
+/* Layer 6 - Nhóm hoa */
 .all-movies-page[data-season="spring"] .movie-grid::before {
   content: '🌸 🌸';
   position: fixed;
-  font-size: 36px;
-  top: -95px;
-  left: 15%;
-  letter-spacing: 50px;
-  animation: petalGroup1 16s linear infinite 5s;
+  font-size: 37px;
+  top: -115px;
+  left: 12%;
+  letter-spacing: 55px;
+  animation: petalGroup1 17s ease-in infinite 10s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 10px rgba(255, 192, 203, 0.7));
+  filter: drop-shadow(0 0 13px rgba(255, 192, 203, 0.88)) brightness(1.1);
   opacity: 0;
 }
 
 @keyframes petalGroup1 {
   0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  30% { transform: translate(80px, 35vh) rotate(-180deg); }
-  60% { transform: translate(-60px, 70vh) rotate(-360deg); }
-  90% { transform: translate(70px, 105vh) rotate(-540deg); }
-  95% { opacity: 0.25; }
-  100% { transform: translate(-40px, 130vh) rotate(-720deg); opacity: 0; }
+  4.5% { opacity: 1; }
+  15% { transform: translate(-92px, 20vh) rotate(-105deg); }
+  30% { transform: translate(110px, 42vh) rotate(-210deg); }
+  45% { transform: translate(-88px, 65vh) rotate(-315deg); }
+  60% { transform: translate(102px, 88vh) rotate(-420deg); }
+  75% { transform: translate(-78px, 110vh) rotate(-525deg); }
+  90% { transform: translate(85px, 132vh) rotate(-630deg); }
+  96% { opacity: 0.3; }
+  100% { transform: translate(-65px, 150vh) rotate(-735deg); opacity: 0; }
 }
 
 /* Layer 7 */
 .all-movies-page[data-season="spring"] .movie-grid::after {
   content: '🌸 🌸';
   position: fixed;
-  font-size: 32px;
-  top: -80px;
-  left: 55%;
-  letter-spacing: 60px;
-  animation: petalGroup2 18s linear infinite 8s;
+  font-size: 41px;
+  top: -108px;
+  left: 52%;
+  letter-spacing: 62px;
+  animation: petalGroup2 19.5s ease-in infinite 12s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 12px rgba(255, 182, 193, 0.8));
+  filter: drop-shadow(0 0 16px rgba(255, 182, 193, 0.92)) brightness(1.13);
   opacity: 0;
 }
 
 @keyframes petalGroup2 {
   0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  25% { transform: translate(-70px, 30vh) rotate(150deg); }
-  50% { transform: translate(60px, 60vh) rotate(300deg); }
-  75% { transform: translate(-50px, 90vh) rotate(450deg); }
-  95% { opacity: 0.2; }
-  100% { transform: translate(40px, 130vh) rotate(600deg); opacity: 0; }
+  3.8% { opacity: 1; }
+  12% { transform: translate(105px, 17vh) rotate(130deg); }
+  24% { transform: translate(-85px, 36vh) rotate(260deg); }
+  36% { transform: translate(115px, 56vh) rotate(390deg); }
+  48% { transform: translate(-95px, 76vh) rotate(520deg); }
+  60% { transform: translate(108px, 95vh) rotate(650deg); }
+  72% { transform: translate(-82px, 114vh) rotate(780deg); }
+  84% { transform: translate(90px, 131vh) rotate(910deg); }
+  96% { opacity: 0.28; }
+  100% { transform: translate(-70px, 150vh) rotate(1040deg); opacity: 0; }
 }
 
 /* ============================================
-   ☀️ MÙA HẠ - SUMMER (Ánh nắng lấp lánh)
+   ☀️ MÙA HẠ - SUMMER (Nắng chói chang + sparkle thực tế)
    ============================================ */
 .all-movies-page[data-season="summer"] {
-  background: linear-gradient(135deg, #fff9e6 0%, #fff4d9 25%, #fffaeb 50%, #fff4d9 75%, #fff9e6 100%);
+  background: 
+    linear-gradient(180deg,
+      #fff9e6 0%,
+      #fff4d9 15%,
+      #fffaeb 30%,
+      #fff2d0 45%,
+      #fffaeb 60%,
+      #fff4d9 75%,
+      #fff9e6 100%
+    );
 }
 
 .all-movies-page[data-season="summer"]::before {
   content: '';
   position: fixed;
-  top: -50%;
+  top: -60%;
   left: 50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(ellipse at center, 
-    rgba(255, 223, 0, 0.5) 0%, 
-    rgba(255, 200, 0, 0.4) 15%,
-    rgba(255, 180, 0, 0.3) 30%,
-    rgba(255, 160, 0, 0.2) 45%,
-    transparent 70%
-  );
+  width: 280%;
+  height: 280%;
+  background: 
+    radial-gradient(ellipse at center, 
+      rgba(255, 223, 0, 0.65) 0%, 
+      rgba(255, 200, 0, 0.55) 10%,
+      rgba(255, 180, 0, 0.45) 20%,
+      rgba(255, 160, 0, 0.35) 30%,
+      rgba(255, 140, 0, 0.25) 40%,
+      transparent 60%
+    );
   transform: translateX(-50%);
-  animation: summerSun 12s ease-in-out infinite;
+  animation: summerSunPulse 14s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
 }
 
-@keyframes summerSun {
+@keyframes summerSunPulse {
   0%, 100% { 
     transform: translateX(-50%) scale(1) rotate(0deg);
-    opacity: 0.75;
+    opacity: 0.85;
+    filter: blur(0px);
+  }
+  25% { 
+    transform: translateX(-50%) scale(1.08) rotate(90deg);
+    opacity: 0.95;
+    filter: blur(1px);
   }
   50% { 
-    transform: translateX(-50%) scale(1.15) rotate(180deg);
+    transform: translateX(-50%) scale(1.18) rotate(180deg);
     opacity: 1;
+    filter: blur(2px);
+  }
+  75% { 
+    transform: translateX(-50%) scale(1.12) rotate(270deg);
+    opacity: 0.92;
+    filter: blur(1.5px);
   }
 }
 
-/* Tia sáng xoay tròn */
+/* Tia sáng xoay */
 .all-movies-page[data-season="summer"]::after {
   content: '';
   position: fixed;
-  top: 10%;
+  top: 8%;
   left: 50%;
-  width: 300px;
-  height: 300px;
+  width: 380px;
+  height: 380px;
   background: 
-    linear-gradient(45deg, transparent 48%, rgba(255, 220, 0, 0.6) 48%, rgba(255, 220, 0, 0.6) 52%, transparent 52%),
-    linear-gradient(-45deg, transparent 48%, rgba(255, 200, 0, 0.5) 48%, rgba(255, 200, 0, 0.5) 52%, transparent 52%);
+    linear-gradient(45deg, transparent 47%, rgba(255, 220, 0, 0.75) 47%, rgba(255, 220, 0, 0.75) 53%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgba(255, 200, 0, 0.65) 47%, rgba(255, 200, 0, 0.65) 53%, transparent 53%),
+    linear-gradient(135deg, transparent 47%, rgba(255, 180, 0, 0.55) 47%, rgba(255, 180, 0, 0.55) 53%, transparent 53%),
+    linear-gradient(-135deg, transparent 47%, rgba(255, 160, 0, 0.45) 47%, rgba(255, 160, 0, 0.45) 53%, transparent 53%);
   transform: translate(-50%, -50%);
-  animation: sunRays 20s linear infinite;
+  animation: sunRaysRotate 25s linear infinite;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
-@keyframes sunRays {
+@keyframes sunRaysRotate {
   0% { transform: translate(-50%, -50%) rotate(0deg); }
   100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* Nhiều ngôi sao lấp lánh */
+/* Sparkles lấp lánh - nhiều vị trí, timing khác nhau */
 .all-movies-page[data-season="summer"] .filter-wrapper::before {
   content: '✨';
   position: fixed;
-  font-size: 50px;
-  top: 15%;
-  left: 18%;
-  animation: sparkle1 4s ease-in-out infinite;
+  font-size: 52px;
+  top: 12%;
+  left: 15%;
+  animation: sparkleFloat1 5s ease-in-out infinite;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9));
+  filter: drop-shadow(0 0 25px rgba(255, 215, 0, 1)) brightness(1.3);
 }
 
-@keyframes sparkle1 {
+@keyframes sparkleFloat1 {
   0%, 100% { 
-    transform: translate(0, 0) rotate(0deg) scale(0.8);
-    opacity: 0.5;
+    transform: translate(0, 0) rotate(0deg) scale(0.7);
+    opacity: 0.4;
   }
-  50% { 
-    transform: translate(120px, -60px) rotate(180deg) scale(1.4);
+  15% { 
+    transform: translate(40px, -20px) rotate(45deg) scale(1);
+    opacity: 0.8;
+  }
+  30% { 
+    transform: translate(140px, -80px) rotate(90deg) scale(1.5);
     opacity: 1;
+  }
+  45% { 
+    transform: translate(200px, -110px) rotate(135deg) scale(1.3);
+    opacity: 0.9;
+  }
+  60% { 
+    transform: translate(140px, -80px) rotate(180deg) scale(1);
+    opacity: 0.7;
+  }
+  75% { 
+    transform: translate(40px, -20px) rotate(225deg) scale(0.8);
+    opacity: 0.5;
   }
 }
 
 .all-movies-page[data-season="summer"] .filter-wrapper::after {
   content: '✨';
   position: fixed;
-  font-size: 45px;
-  top: 20%;
-  right: 15%;
-  animation: sparkle2 5s ease-in-out infinite 1s;
+  font-size: 48px;
+  top: 18%;
+  right: 12%;
+  animation: sparkleFloat2 6s ease-in-out infinite 1.2s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 18px rgba(255, 200, 0, 0.85));
+  filter: drop-shadow(0 0 22px rgba(255, 200, 0, 0.95)) brightness(1.25);
 }
 
-@keyframes sparkle2 {
+@keyframes sparkleFloat2 {
   0%, 100% { 
-    transform: translate(0, 0) rotate(0deg) scale(0.9);
-    opacity: 0.6;
+    transform: translate(0, 0) rotate(0deg) scale(0.75);
+    opacity: 0.45;
   }
-  50% { 
-    transform: translate(-100px, 70px) rotate(-200deg) scale(1.5);
+  18% { 
+    transform: translate(-50px, 30px) rotate(-50deg) scale(1.1);
+    opacity: 0.85;
+  }
+  35% { 
+    transform: translate(-120px, 90px) rotate(-100deg) scale(1.6);
     opacity: 1;
+  }
+  52% { 
+    transform: translate(-180px, 130px) rotate(-150deg) scale(1.4);
+    opacity: 0.92;
+  }
+  70% { 
+    transform: translate(-120px, 90px) rotate(-200deg) scale(1.05);
+    opacity: 0.65;
+  }
+  85% { 
+    transform: translate(-50px, 30px) rotate(-250deg) scale(0.85);
+    opacity: 0.5;
   }
 }
 
 .all-movies-page[data-season="summer"] h2::before {
   content: '✨';
   position: fixed;
-  font-size: 42px;
-  top: 35%;
-  left: 25%;
-  animation: sparkle3 6s ease-in-out infinite 2s;
+  font-size: 46px;
+  top: 38%;
+  left: 22%;
+  animation: sparkleFloat3 7s ease-in-out infinite 2.5s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 22px rgba(255, 180, 0, 0.9));
+  filter: drop-shadow(0 0 28px rgba(255, 180, 0, 1)) brightness(1.35);
 }
 
-@keyframes sparkle3 {
+@keyframes sparkleFloat3 {
   0%, 100% { 
-    transform: translate(0, 0) rotate(0deg) scale(0.85);
-    opacity: 0.55;
+    transform: translate(0, 0) rotate(0deg) scale(0.72);
+    opacity: 0.42;
   }
-  50% { 
-    transform: translate(90px, -80px) rotate(220deg) scale(1.6);
+  20% { 
+    transform: translate(60px, -40px) rotate(60deg) scale(1.15);
+    opacity: 0.88;
+  }
+  40% { 
+    transform: translate(110px, -100px) rotate(120deg) scale(1.7);
     opacity: 1;
+  }
+  60% { 
+    transform: translate(60px, -40px) rotate(180deg) scale(1.2);
+    opacity: 0.75;
+  }
+  80% { 
+    transform: translate(0, 0) rotate(240deg) scale(0.8);
+    opacity: 0.48;
   }
 }
 
 .all-movies-page[data-season="summer"] h2::after {
   content: '✨';
   position: fixed;
-  font-size: 48px;
-  bottom: 30%;
-  right: 20%;
-  animation: sparkle4 5.5s ease-in-out infinite 1.5s;
+  font-size: 50px;
+  bottom: 28%;
+  right: 18%;
+  animation: sparkleFloat4 6.5s ease-in-out infinite 1.8s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 25px rgba(255, 215, 0, 1));
+  filter: drop-shadow(0 0 30px rgba(255, 215, 0, 1)) brightness(1.4);
 }
 
-@keyframes sparkle4 {
+@keyframes sparkleFloat4 {
   0%, 100% { 
-    transform: translate(0, 0) rotate(0deg) scale(0.9);
-    opacity: 0.6;
+    transform: translate(0, 0) rotate(0deg) scale(0.78);
+    opacity: 0.48;
   }
-  50% { 
-    transform: translate(-110px, 60px) rotate(-180deg) scale(1.55);
+  17% { 
+    transform: translate(-55px, 35px) rotate(-55deg) scale(1.12);
+    opacity: 0.82;
+  }
+  34% { 
+    transform: translate(-130px, 80px) rotate(-110deg) scale(1.65);
     opacity: 1;
+  }
+  51% { 
+    transform: translate(-190px, 115px) rotate(-165deg) scale(1.45);
+    opacity: 0.9;
+  }
+  68% { 
+    transform: translate(-130px, 80px) rotate(-220deg) scale(1.08);
+    opacity: 0.68;
+  }
+  85% { 
+    transform: translate(-55px, 35px) rotate(-275deg) scale(0.82);
+    opacity: 0.52;
   }
 }
 
 .all-movies-page[data-season="summer"] .movie-grid::before {
   content: '✨';
   position: fixed;
-  font-size: 40px;
-  top: 50%;
-  left: 12%;
-  animation: sparkle5 7s ease-in-out infinite 3s;
+  font-size: 44px;
+  top: 52%;
+  left: 10%;
+  animation: sparkleFloat5 8s ease-in-out infinite 3.5s;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 0 20px rgba(255, 200, 0, 0.95));
+  filter: drop-shadow(0 0 24px rgba(255, 200, 0, 0.98)) brightness(1.32);
 }
 
-@keyframes sparkle5 {
+@keyframes sparkleFloat5 {
   0%, 100% { 
-    transform: translate(0, 0) rotate(0deg) scale(0.8);
-    opacity: 0.5;
+    transform: translate(0, 0) rotate(0deg) scale(0.7);
+    opacity: 0.4;
   }
-  50% { 
-    transform: translate(100px, -70px) rotate(240deg) scale(1.45);
+  22% { 
+    transform: translate(70px, -50px) rotate(70deg) scale(1.18);
+    opacity: 0.86;
+  }
+  44% { 
+    transform: translate(125px, -95px) rotate(140deg) scale(1.55);
     opacity: 1;
   }
+  66% { 
+    transform: translate(70px, -50px) rotate(210deg) scale(1.1);
+    opacity: 0.72;
+  }
+  88% { 
+    transform: translate(0, 0) rotate(280deg) scale(0.75);
+    opacity: 0.45;
+  }
 }
 
-/* Hiệu ứng ánh sáng nhấp nháy toàn màn */
+/* Hiệu ứng lấp lánh toàn màn */
 .all-movies-page[data-season="summer"] .movie-grid::after {
   content: '';
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 200, 0.7) 3px, transparent 3px),
-    radial-gradient(circle at 40% 50%, rgba(255, 240, 150, 0.6) 2px, transparent 2px),
-    radial-gradient(circle at 60% 25%, rgba(255, 255, 180, 0.8) 3px, transparent 3px),
-    radial-gradient(circle at 80% 60%, rgba(255, 230, 120, 0.5) 2px, transparent 2px),
-    radial-gradient(circle at 35% 75%, rgba(255, 250, 200, 0.7) 3px, transparent 3px),
-    radial-gradient(circle at 70% 80%, rgba(255, 240, 160, 0.6) 2px, transparent 2px);
+    radial-gradient(circle at 18% 25%, rgba(255, 255, 200, 0.85) 2.5px, transparent 2.5px),
+    radial-gradient(circle at 38% 48%, rgba(255, 240, 150, 0.75) 2px, transparent 2px),
+    radial-gradient(circle at 58% 22%, rgba(255, 255, 180, 0.9) 3px, transparent 3px),
+    radial-gradient(circle at 78% 58%, rgba(255, 230, 120, 0.65) 2px, transparent 2px),
+    radial-gradient(circle at 32% 72%, rgba(255, 250, 200, 0.8) 2.8px, transparent 2.8px),
+    radial-gradient(circle at 68% 78%, rgba(255, 240, 160, 0.7) 2.2px, transparent 2.2px),
+    radial-gradient(circle at 85% 35%, rgba(255, 255, 190, 0.75) 2.5px, transparent 2.5px),
+    radial-gradient(circle at 12% 65%, rgba(255, 235, 140, 0.68) 2px, transparent 2px);
   background-size: 
-    300px 300px, 
-    200px 200px, 
-    350px 350px, 
-    250px 250px,
+    320px 320px, 
+    210px 210px, 
+    370px 370px, 
+    260px 260px,
+    295px 295px,
+    235px 235px,
     280px 280px,
-    220px 220px;
+    200px 200px;
   background-position: 
     0 0, 
-    100px 100px, 
-    50px 150px, 
-    200px 50px,
-    150px 250px,
-    250px 180px;
-  animation: summerSparkleAll 4s ease-in-out infinite;
+    110px 110px, 
+    55px 165px, 
+    215px 55px,
+    165px 270px,
+    270px 195px,
+    340px 120px,
+    90px 330px;
+  animation: summerSparkleAll 5s ease-in-out infinite;
   pointer-events: none;
   z-index: 100;
 }
 
 @keyframes summerSparkleAll {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.8; }
+  0%, 100% { 
+    opacity: 0.25; 
+    transform: scale(1);
+  }
+  25% { 
+    opacity: 0.55; 
+    transform: scale(1.05);
+  }
+  50% { 
+    opacity: 0.9; 
+    transform: scale(1.08);
+  }
+  75% { 
+    opacity: 0.6; 
+    transform: scale(1.03);
+  }
 }
 
 /* ============================================
-   🍂 MÙA THU - AUTUMN (Lá bay tự nhiên)
+   🍂 MÙA THU - AUTUMN (Lá rơi theo gió thật)
    ============================================ */
 .all-movies-page[data-season="autumn"] {
-  background: linear-gradient(135deg, #fff5e6 0%, #ffe9cc 30%, #fff0db 70%, #fff5e6 100%);
+  background: 
+    linear-gradient(180deg,
+      #fff5e6 0%,
+      #ffe9cc 18%,
+      #fff0db 35%,
+      #ffe5c2 52%,
+      #fff0db 68%,
+      #ffe9cc 82%,
+      #fff5e6 100%
+    );
 }
 
 .all-movies-page[data-season="autumn"]::before {
@@ -439,483 +617,566 @@
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(circle at 30% 40%, rgba(210, 105, 30, 0.25), transparent 55%),
-    radial-gradient(circle at 70% 60%, rgba(184, 134, 11, 0.2), transparent 55%),
-    radial-gradient(circle at 50% 20%, rgba(139, 69, 19, 0.15), transparent 50%);
-  animation: autumnWind 8s ease-in-out infinite;
+    radial-gradient(ellipse at 25% 35%, rgba(210, 105, 30, 0.32), transparent 58%),
+    radial-gradient(ellipse at 75% 55%, rgba(184, 134, 11, 0.28), transparent 55%),
+    radial-gradient(ellipse at 45% 75%, rgba(139, 69, 19, 0.22), transparent 60%),
+    radial-gradient(ellipse at 65% 25%, rgba(205, 133, 63, 0.25), transparent 52%);
+  animation: autumnWindFlow 10s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
 }
 
-@keyframes autumnWind {
-  0%, 100% { transform: translateX(0) translateY(0); }
-  25% { transform: translateX(40px) translateY(-20px); }
-  50% { transform: translateX(0) translateY(0); }
-  75% { transform: translateX(-30px) translateY(15px); }
+@keyframes autumnWindFlow {
+  0%, 100% { 
+    transform: translate(0, 0) rotate(0deg); 
+    opacity: 0.7;
+  }
+  15% { 
+    transform: translate(25px, -10px) rotate(1deg); 
+    opacity: 0.85;
+  }
+  30% { 
+    transform: translate(55px, -25px) rotate(2deg); 
+    opacity: 0.95;
+  }
+  45% { 
+    transform: translate(25px, -10px) rotate(1deg); 
+    opacity: 0.8;
+  }
+  60% { 
+    transform: translate(-30px, 15px) rotate(-1deg); 
+    opacity: 0.9;
+  }
+  75% { 
+    transform: translate(-50px, 25px) rotate(-2deg); 
+    opacity: 0.75;
+  }
+  90% { 
+    transform: translate(-20px, 10px) rotate(-0.5deg); 
+    opacity: 0.82;
+  }
 }
 
-/* Nhiều lớp lá rơi */
+/* Lá rơi layer 1 */
 .all-movies-page[data-season="autumn"]::after {
   content: '🍂';
   position: fixed;
-  font-size: 40px;
-  top: -100px;
-  left: 8%;
-  animation: leaf1 22s linear infinite;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(3px 3px 6px rgba(139, 69, 19, 0.5));
-  opacity: 0;
-}
-
-@keyframes leaf1 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  15% { transform: translate(110px, 20vh) rotate(140deg); }
-  30% { transform: translate(-60px, 40vh) rotate(280deg); }
-  45% { transform: translate(130px, 60vh) rotate(420deg); }
-  60% { transform: translate(-80px, 80vh) rotate(560deg); }
-  75% { transform: translate(100px, 100vh) rotate(700deg); }
-  90% { transform: translate(-50px, 120vh) rotate(840deg); }
-  95% { opacity: 0.3; }
-  100% { transform: translate(70px, 140vh) rotate(1000deg); opacity: 0; }
-}
-
-.all-movies-page[data-season="autumn"] .filter-wrapper::before {
-  content: '🍁';
-  position: fixed;
   font-size: 44px;
-  top: -90px;
-  left: 28%;
-  animation: leaf2 20s linear infinite 4s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(2px 2px 5px rgba(210, 105, 30, 0.6));
-  opacity: 0;
+  top: -120px;
+  left: 7%;
+animation: leafDrift1 24s ease-in infinite;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(4px 4px 8px rgba(139, 69, 19, 0.65)) brightness(1.08);
+opacity: 0;
 }
-
-@keyframes leaf2 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  18% { transform: translate(-100px, 22vh) rotate(-160deg); }
-  35% { transform: translate(80px, 45vh) rotate(-320deg); }
-  52% { transform: translate(-120px, 68vh) rotate(-480deg); }
-  70% { transform: translate(90px, 90vh) rotate(-640deg); }
-  88% { transform: translate(-70px, 115vh) rotate(-800deg); }
-  95% { opacity: 0.25; }
-  100% { transform: translate(50px, 140vh) rotate(-960deg); opacity: 0; }
+@keyframes leafDrift1 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+3% { opacity: 1; }
+8% { transform: translate(35px, 10vh) rotate(50deg) scale(0.95); }
+16% { transform: translate(130px, 22vh) rotate(160deg) scale(1.08); }
+24% { transform: translate(80px, 35vh) rotate(280deg) scale(0.92); }
+32% { transform: translate(155px, 48vh) rotate(400deg) scale(1.05); }
+40% { transform: translate(95px, 61vh) rotate(520deg) scale(0.88); }
+48% { transform: translate(145px, 74vh) rotate(640deg) scale(1.02); }
+56% { transform: translate(105px, 87vh) rotate(760deg) scale(0.9); }
+64% { transform: translate(125px, 100vh) rotate(880deg) scale(0.98); }
+72% { transform: translate(85px, 113vh) rotate(1000deg) scale(0.86); }
+80% { transform: translate(110px, 126vh) rotate(1120deg) scale(0.94); }
+88% { transform: translate(75px, 138vh) rotate(1240deg) scale(0.84); }
+96% { opacity: 0.35; }
+100% { transform: translate(95px, 152vh) rotate(1360deg) scale(0.78); opacity: 0; }
 }
-
+/* Layer 2 */
+.all-movies-page[data-season="autumn"] .filter-wrapper::before {
+content: '🍁';
+position: fixed;
+font-size: 48px;
+top: -110px;
+left: 26%;
+animation: leafDrift2 22s ease-in infinite 5s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(3px 3px 7px rgba(210, 105, 30, 0.7)) brightness(1.1);
+opacity: 0;
+}
+@keyframes leafDrift2 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+3.5% { opacity: 1; }
+10% { transform: translate(-45px, 12vh) rotate(-70deg) scale(1.06); }
+20% { transform: translate(-125px, 26vh) rotate(-180deg) scale(0.9); }
+30% { transform: translate(-75px, 40vh) rotate(-290deg) scale(1.03); }
+40% { transform: translate(-140px, 54vh) rotate(-400deg) scale(0.88); }
+50% { transform: translate(-90px, 68vh) rotate(-510deg) scale(1.08); }
+60% { transform: translate(-135px, 82vh) rotate(-620deg) scale(0.93); }
+70% { transform: translate(-100px, 96vh) rotate(-730deg) scale(0.97); }
+80% { transform: translate(-120px, 110vh) rotate(-840deg) scale(0.85); }
+90% { transform: translate(-80px, 124vh) rotate(-950deg) scale(0.91); }
+96% { opacity: 0.3; }
+100% { transform: translate(-105px, 152vh) rotate(-1060deg) scale(0.8); opacity: 0; }
+}
+/* Layer 3 */
 .all-movies-page[data-season="autumn"] .filter-wrapper::after {
-  content: '🍂';
-  position: fixed;
-  font-size: 38px;
-  top: -85px;
-  left: 48%;
-  animation: leaf3 24s linear infinite 7s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(3px 3px 5px rgba(184, 134, 11, 0.55));
-  opacity: 0;
+content: '🍂';
+position: fixed;
+font-size: 42px;
+top: -105px;
+left: 46%;
+animation: leafDrift3 26s ease-in infinite 9s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(4px 4px 7px rgba(184, 134, 11, 0.68)) brightness(1.05);
+opacity: 0;
 }
-
-@keyframes leaf3 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  20% { transform: translate(90px, 28vh) rotate(220deg); }
-  40% { transform: translate(-70px, 55vh) rotate(440deg); }
-  60% { transform: translate(110px, 82vh) rotate(660deg); }
-  80% { transform: translate(-60px, 110vh) rotate(880deg); }
-  95% { opacity: 0.2; }
-  100% { transform: translate(-40px, 140vh) rotate(1100deg); opacity: 0; }
+@keyframes leafDrift3 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+3% { opacity: 1; }
+9% { transform: translate(50px, 11vh) rotate(85deg) scale(0.94); }
+18% { transform: translate(105px, 24vh) rotate(230deg) scale(1.1); }
+27% { transform: translate(60px, 38vh) rotate(375deg) scale(0.87); }
+36% { transform: translate(125px, 52vh) rotate(520deg) scale(1.06); }
+45% { transform: translate(80px, 66vh) rotate(665deg) scale(0.91); }
+54% { transform: translate(135px, 80vh) rotate(810deg) scale(1.03); }
+63% { transform: translate(95px, 94vh) rotate(955deg) scale(0.88); }
+72% { transform: translate(120px, 108vh) rotate(1100deg) scale(0.99); }
+81% { transform: translate(75px, 122vh) rotate(1245deg) scale(0.85); }
+90% { transform: translate(100px, 136vh) rotate(1390deg) scale(0.92); }
+96% { opacity: 0.32; }
+100% { transform: translate(65px, 152vh) rotate(1535deg) scale(0.79); opacity: 0; }
 }
-
+/* Layer 4 */
 .all-movies-page[data-season="autumn"] h2::before {
-  content: '🍁';
-  position: fixed;
-  font-size: 42px;
-  top: -95px;
-  left: 68%;
-  animation: leaf4 19s linear infinite 2s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(2px 2px 4px rgba(139, 69, 19, 0.6));
-  opacity: 0;
+content: '🍁';
+position: fixed;
+font-size: 46px;
+top: -115px;
+left: 65%;
+animation: leafDrift4 21s ease-in infinite 3s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(3px 3px 6px rgba(139, 69, 19, 0.72)) brightness(1.12);
+opacity: 0;
 }
-
-@keyframes leaf4 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  22% { transform: translate(-90px, 25vh) rotate(-180deg); }
-  44% { transform: translate(70px, 52vh) rotate(-360deg); }
-  66% { transform: translate(-100px, 78vh) rotate(-540deg); }
-  88% { transform: translate(80px, 105vh) rotate(-720deg); }
-  95% { opacity: 0.3; }
-  100% { transform: translate(-50px, 140vh) rotate(-900deg); opacity: 0; }
+@keyframes leafDrift4 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+3.8% { opacity: 1; }
+11% { transform: translate(-55px, 13vh) rotate(-95deg) scale(1.04); }
+22% { transform: translate(-115px, 28vh) rotate(-210deg) scale(0.89); }
+33% { transform: translate(-70px, 43vh) rotate(-325deg) scale(1.09); }
+44% { transform: translate(-130px, 58vh) rotate(-440deg) scale(0.92); }
+55% { transform: translate(-85px, 73vh) rotate(-555deg) scale(1.01); }
+66% { transform: translate(-125px, 88vh) rotate(-670deg) scale(0.87); }
+77% { transform: translate(-95px, 103vh) rotate(-785deg) scale(0.96); }
+88% { transform: translate(-110px, 118vh) rotate(-900deg) scale(0.84); }
+96% { opacity: 0.28; }
+100% { transform: translate(-75px, 152vh) rotate(-1015deg) scale(0.81); opacity: 0; }
 }
-
+/* Layer 5 */
 .all-movies-page[data-season="autumn"] h2::after {
-  content: '🍂';
-  position: fixed;
-  font-size: 36px;
-  top: -80px;
-  left: 85%;
-  animation: leaf5 21s linear infinite 5s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(3px 3px 6px rgba(210, 105, 30, 0.5));
-  opacity: 0;
+content: '🍂';
+position: fixed;
+font-size: 40px;
+top: -100px;
+left: 82%;
+animation: leafDrift5 23s ease-in infinite 7s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(4px 4px 8px rgba(210, 105, 30, 0.65)) brightness(1.07);
+opacity: 0;
 }
-
-@keyframes leaf5 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  19% { transform: translate(95px, 24vh) rotate(170deg); }
-  38% { transform: translate(-65px, 48vh) rotate(340deg); }
-  57% { transform: translate(105px, 72vh) rotate(510deg); }
-  76% { transform: translate(-75px, 96vh) rotate(680deg); }
-  95% { opacity: 0.25; }
-  100% { transform: translate(60px, 140vh) rotate(850deg); opacity: 0; }
+@keyframes leafDrift5 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+3.3% { opacity: 1; }
+10% { transform: translate(48px, 12vh) rotate(78deg) scale(0.96); }
+20% { transform: translate(118px, 26vh) rotate(200deg) scale(1.07); }
+30% { transform: translate(72px, 40vh) rotate(322deg) scale(0.9); }
+40% { transform: translate(132px, 54vh) rotate(444deg) scale(1.04); }
+50% { transform: translate(88px, 68vh) rotate(566deg) scale(0.86); }
+60% { transform: translate(128px, 82vh) rotate(688deg) scale(1.02); }
+70% { transform: translate(98px, 96vh) rotate(810deg) scale(0.89); }
+80% { transform: translate(115px, 110vh) rotate(932deg) scale(0.95); }
+90% { transform: translate(78px, 124vh) rotate(1054deg) scale(0.83); }
+96% { opacity: 0.34; }
+100% { transform: translate(92px, 152vh) rotate(1176deg) scale(0.77); opacity: 0; }
 }
-
+/* Layer 6 - Nhóm lá */
 .all-movies-page[data-season="autumn"] .movie-grid::before {
-  content: '🍁 🍂';
-  position: fixed;
-  font-size: 38px;
-  top: -100px;
-  left: 18%;
-  letter-spacing: 45px;
-  animation: leafGroup1 18s linear infinite 3s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(2px 2px 5px rgba(184, 134, 11, 0.6));
-  opacity: 0;
+content: '🍁 🍂';
+position: fixed;
+font-size: 42px;
+top: -118px;
+left: 16%;
+letter-spacing: 52px;
+animation: leafGroupDrift1 20s ease-in infinite 4s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(3px 3px 7px rgba(184, 134, 11, 0.7)) brightness(1.08);
+opacity: 0;
 }
-
-@keyframes leafGroup1 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  25% { transform: translate(-85px, 32vh) rotate(-130deg); }
-  50% { transform: translate(100px, 65vh) rotate(-260deg); }
-  75% { transform: translate(-70px, 98vh) rotate(-390deg); }
-  95% { opacity: 0.2; }
-  100% { transform: translate(80px, 140vh) rotate(-520deg); opacity: 0; }
+@keyframes leafGroupDrift1 {
+0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+4% { opacity: 1; }
+13% { transform: translate(-62px, 16vh) rotate(-88deg); }
+26% { transform: translate(-128px, 34vh) rotate(-196deg); }
+39% { transform: translate(-82px, 52vh) rotate(-304deg); }
+52% { transform: translate(-138px, 70vh) rotate(-412deg); }
+65% { transform: translate(-95px, 88vh) rotate(-520deg); }
+78% { transform: translate(-125px, 106vh) rotate(-628deg); }
+91% { transform: translate(-88px, 124vh) rotate(-736deg); }
+96% { opacity: 0.3; }
+100% { transform: translate(-108px, 152vh) rotate(-844deg); opacity: 0; }
 }
-
+/* Layer 7 */
 .all-movies-page[data-season="autumn"] .movie-grid::after {
-  content: '🍂 🍁';
-  position: fixed;
-  font-size: 40px;
-  top: -90px;
-  left: 58%;
-  letter-spacing: 55px;
-  animation: leafGroup2 20s linear infinite 6s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(3px 3px 6px rgba(139, 69, 19, 0.55));
-  opacity: 0;
+content: '🍂 🍁';
+position: fixed;
+font-size: 45px;
+top: -112px;
+left: 56%;
+letter-spacing: 58px;
+animation: leafGroupDrift2 22s ease-in infinite 8s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(4px 4px 8px rgba(139, 69, 19, 0.68)) brightness(1.1);
+opacity: 0;
 }
-
-@keyframes leafGroup2 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  20% { transform: translate(90px, 28vh) rotate(150deg); }
-  40% { transform: translate(-75px, 56vh) rotate(300deg); }
-  60% { transform: translate(110px, 84vh) rotate(450deg); }
-  80% { transform: translate(-65px, 112vh) rotate(600deg); }
-  95% { opacity: 0.3; }
-  100% { transform: translate(50px, 140vh) rotate(750deg); opacity: 0; }
+@keyframes leafGroupDrift2 {
+0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+3.6% { opacity: 1; }
+11% { transform: translate(58px, 14vh) rotate(92deg); }
+22% { transform: translate(122px, 30vh) rotate(204deg); }
+33% { transform: translate(68px, 46vh) rotate(316deg); }
+44% { transform: translate(135px, 62vh) rotate(428deg); }
+55% { transform: translate(85px, 78vh) rotate(540deg); }
+66% { transform: translate(128px, 94vh) rotate(652deg); }
+77% { transform: translate(95px, 110vh) rotate(764deg); }
+88% { transform: translate(118px, 126vh) rotate(876deg); }
+96% { opacity: 0.32; }
+100% { transform: translate(78px, 152vh) rotate(988deg); opacity: 0; }
 }
-
 /* ============================================
-   ❄️ MÙA ĐÔNG - WINTER (Tuyết rơi tự nhiên)
-   ============================================ */
+❄️ MÙA ĐÔNG - WINTER (Tuyết rơi thật)
+============================================ */
 .all-movies-page[data-season="winter"] {
-  background: linear-gradient(135deg, #e6f2ff 0%, #d9ebff 30%, #f0f7ff 70%, #e6f2ff 100%);
+background:
+linear-gradient(180deg,
+#e6f2ff 0%,
+#d9ebff 16%,
+#f0f7ff 32%,
+#dbe8f7 48%,
+#f0f7ff 64%,
+#d9ebff 80%,
+#e6f2ff 100%
+);
 }
-
 .all-movies-page[data-season="winter"]::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(173, 216, 230, 0.4), transparent 60%),
-    radial-gradient(circle at 80% 70%, rgba(135, 206, 235, 0.35), transparent 60%),
-    radial-gradient(circle at 50% 50%, rgba(176, 224, 230, 0.3), transparent 65%);
-  animation: winterCold 12s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
+content: '';
+position: fixed;
+inset: 0;
+background:
+radial-gradient(ellipse at 22% 28%, rgba(173, 216, 230, 0.55), transparent 62%),
+radial-gradient(ellipse at 78% 68%, rgba(135, 206, 235, 0.48), transparent 58%),
+radial-gradient(ellipse at 48% 48%, rgba(176, 224, 230, 0.42), transparent 65%),
+radial-gradient(ellipse at 65% 25%, rgba(173, 216, 230, 0.38), transparent 55%);
+animation: winterFrost 16s ease-in-out infinite;
+pointer-events: none;
+z-index: 0;
 }
-
-@keyframes winterCold {
-  0%, 100% { 
-    opacity: 0.6;
-    filter: blur(0px);
-  }
-  50% { 
-    opacity: 0.95;
-    filter: blur(2px);
-  }
+@keyframes winterFrost {
+0%, 100% {
+opacity: 0.7;
+filter: blur(0px);
+transform: scale(1);
 }
-
-/* Nhiều lớp tuyết rơi */
+20% {
+opacity: 0.85;
+filter: blur(1px);
+transform: scale(1.04);
+}
+40% {
+opacity: 1;
+filter: blur(2.5px);
+transform: scale(1.1);
+}
+60% {
+opacity: 0.92;
+filter: blur(1.8px);
+transform: scale(1.06);
+}
+80% {
+opacity: 0.78;
+filter: blur(0.8px);
+transform: scale(1.02);
+}
+}
+/* Tuyết rơi layer 1 */
 .all-movies-page[data-season="winter"]::after {
-  content: '❄️';
-  position: fixed;
-  font-size: 34px;
-  top: -80px;
-  left: 10%;
-  animation: snow1 16s linear infinite;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(0 0 12px rgba(173, 216, 230, 0.8));
-  opacity: 0;
+content: '❄️';
+position: fixed;
+font-size: 38px;
+top: -95px;
+left: 9%;
+animation: snowFall1 18s linear infinite;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(0 0 16px rgba(173, 216, 230, 0.95)) brightness(1.15);
+opacity: 0;
 }
-
-@keyframes snow1 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  20% { transform: translate(-35px, 25vh) rotate(100deg); }
-  40% { transform: translate(25px, 50vh) rotate(200deg); }
-  60% { transform: translate(-40px, 75vh) rotate(300deg); }
-  80% { transform: translate(20px, 100vh) rotate(400deg); }
-  95% { opacity: 0.4; }
-  100% { transform: translate(-30px, 130vh) rotate(500deg); opacity: 0; }
+@keyframes snowFall1 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+4% { opacity: 1; }
+12% { transform: translate(-22px, 15vh) rotate(65deg) scale(0.96); }
+24% { transform: translate(18px, 32vh) rotate(145deg) scale(1.04); }
+36% { transform: translate(-28px, 49vh) rotate(225deg) scale(0.92); }
+48% { transform: translate(25px, 66vh) rotate(305deg) scale(1.02); }
+60% { transform: translate(-30px, 83vh) rotate(385deg) scale(0.94); }
+72% { transform: translate(20px, 100vh) rotate(465deg) scale(1.01); }
+84% { transform: translate(-26px, 117vh) rotate(545deg) scale(0.9); }
+96% { opacity: 0.42; }
+100% { transform: translate(22px, 135vh) rotate(625deg) scale(0.88); opacity: 0; }
 }
-
+/* Layer 2 */
 .all-movies-page[data-season="winter"] .filter-wrapper::before {
-  content: '❄️';
-  position: fixed;
-  font-size: 38px;
-  top: -75px;
-  left: 27%;
-  animation: snow2 18s linear infinite 3s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(0 0 10px rgba(135, 206, 235, 0.75));
-  opacity: 0;
+content: '❄️';
+position: fixed;
+font-size: 42px;
+top: -90px;
+left: 25%;
+animation: snowFall2 20s linear infinite 4s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(0 0 14px rgba(135, 206, 235, 0.9)) brightness(1.12);
+opacity: 0;
 }
-
-@keyframes snow2 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  22% { transform: translate(40px, 28vh) rotate(-130deg); }
-  44% { transform: translate(-30px, 56vh) rotate(-260deg); }
-  66% { transform: translate(35px, 84vh) rotate(-390deg); }
-  88% { transform: translate(-25px, 112vh) rotate(-520deg); }
-  95% { opacity: 0.35; }
-  100% { transform: translate(30px, 130vh) rotate(-650deg); opacity: 0; }
+@keyframes snowFall2 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+3.5% { opacity: 1; }
+11% { transform: translate(32px, 14vh) rotate(-78deg) scale(1.05); }
+22% { transform: translate(-25px, 30vh) rotate(-168deg) scale(0.93); }
+33% { transform: translate(35px, 46vh) rotate(-258deg) scale(1.08); }
+44% { transform: translate(-28px, 62vh) rotate(-348deg) scale(0.9); }
+55% { transform: translate(38px, 78vh) rotate(-438deg) scale(1.03); }
+66% { transform: translate(-32px, 94vh) rotate(-528deg) scale(0.91); }
+77% { transform: translate(30px, 110vh) rotate(-618deg) scale(1.01); }
+88% { transform: translate(-26px, 126vh) rotate(-708deg) scale(0.88); }
+96% { opacity: 0.38; }
+100% { transform: translate(28px, 135vh) rotate(-798deg) scale(0.86); opacity: 0; }
 }
-
+/* Layer 3 */
 .all-movies-page[data-season="winter"] .filter-wrapper::after {
-  content: '❄️';
-  position: fixed;
-  font-size: 32px;
-  top: -70px;
-  left: 46%;
-  animation: snow3 20s linear infinite 6s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(0 0 14px rgba(173, 216, 230, 0.85));
-  opacity: 0;
+content: '❄️';
+position: fixed;
+font-size: 36px;
+top: -85px;
+left: 44%;
+animation: snowFall3 22s linear infinite 7s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(0 0 18px rgba(173, 216, 230, 1)) brightness(1.18);
+opacity: 0;
 }
-
-@keyframes snow3 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  18% { transform: translate(-50px, 24vh) rotate(120deg); }
-  36% { transform: translate(35px, 48vh) rotate(240deg); }
-  54% { transform: translate(-45px, 72vh) rotate(360deg); }
-  72% { transform: translate(30px, 96vh) rotate(480deg); }
-  90% { transform: translate(-35px, 120vh) rotate(600deg); }
-  95% { opacity: 0.3; }
-  100% { transform: translate(25px, 130vh) rotate(720deg); opacity: 0; }
+@keyframes snowFall3 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+3.2% { opacity: 1; }
+10% { transform: translate(-38px, 13vh) rotate(82deg) scale(0.95); }
+20% { transform: translate(30px, 28vh) rotate(182deg) scale(1.06); }
+30% { transform: translate(-42px, 43vh) rotate(282deg) scale(0.89); }
+40% { transform: translate(35px, 58vh) rotate(382deg) scale(1.04); }
+50% { transform: translate(-40px, 73vh) rotate(482deg) scale(0.91); }
+60% { transform: translate(32px, 88vh) rotate(582deg) scale(1.02); }
+70% { transform: translate(-36px, 103vh) rotate(682deg) scale(0.87); }
+80% { transform: translate(34px, 118vh) rotate(782deg) scale(0.98); }
+90% { transform: translate(-30px, 130vh) rotate(882deg) scale(0.85); }
+96% { opacity: 0.35; }
+100% { transform: translate(28px, 135vh) rotate(982deg) scale(0.83); opacity: 0; }
 }
-
+/* Layer 4 */
 .all-movies-page[data-season="winter"] h2::before {
-  content: '❄️';
-  position: fixed;
-  font-size: 36px;
-  top: -85px;
-  left: 64%;
-  animation: snow4 17s linear infinite 2s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(0 0 11px rgba(135, 206, 235, 0.8));
-  opacity: 0;
+content: '❄️';
+position: fixed;
+font-size: 40px;
+top: -100px;
+left: 62%;
+animation: snowFall4 19s linear infinite 2.5s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(0 0 15px rgba(135, 206, 235, 0.92)) brightness(1.14);
+opacity: 0;
 }
-
-@keyframes snow4 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  21% { transform: translate(38px, 26vh) rotate(-110deg); }
-  42% { transform: translate(-32px, 52vh) rotate(-220deg); }
-  63% { transform: translate(40px, 78vh) rotate(-330deg); }
-  84% { transform: translate(-28px, 104vh) rotate(-440deg); }
-  95% { opacity: 0.38; }
-  100% { transform: translate(35px, 130vh) rotate(-550deg); opacity: 0; }
+@keyframes snowFall4 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+3.8% { opacity: 1; }
+12% { transform: translate(28px, 15vh) rotate(-72deg) scale(1.03); }
+24% { transform: translate(-24px, 32vh) rotate(-156deg) scale(0.92); }
+36% { transform: translate(32px, 49vh) rotate(-240deg) scale(1.07); }
+48% { transform: translate(-26px, 66vh) rotate(-324deg) scale(0.88); }
+60% { transform: translate(34px, 83vh) rotate(-408deg) scale(1.04); }
+72% { transform: translate(-30px, 100vh) rotate(-492deg) scale(0.9); }
+84% { transform: translate(28px, 117vh) rotate(-576deg) scale(1.01); }
+96% { opacity: 0.4; }
+100% { transform: translate(-25px, 135vh) rotate(-660deg) scale(0.87); opacity: 0; }
 }
-
+/* Layer 5 */
 .all-movies-page[data-season="winter"] h2::after {
-  content: '❄️';
-  position: fixed;
-  font-size: 30px;
-  top: -65px;
-  left: 82%;
-  animation: snow5 19s linear infinite 5s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(0 0 13px rgba(173, 216, 230, 0.9));
-  opacity: 0;
+content: '❄️';
+position: fixed;
+font-size: 34px;
+top: -80px;
+left: 80%;
+animation: snowFall5 21s linear infinite 6s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(0 0 17px rgba(173, 216, 230, 0.98)) brightness(1.16);
+opacity: 0;
 }
-
-@keyframes snow5 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  19% { transform: translate(-42px, 25vh) rotate(140deg); }
-  38% { transform: translate(28px, 50vh) rotate(280deg); }
-  57% { transform: translate(-38px, 75vh) rotate(420deg); }
-  76% { transform: translate(32px, 100vh) rotate(560deg); }
-  95% { opacity: 0.32; }
-  100% { transform: translate(-28px, 130vh) rotate(700deg); opacity: 0; }
+@keyframes snowFall5 {
+0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+3.4% { opacity: 1; }
+11% { transform: translate(-32px, 14vh) rotate(88deg) scale(0.94); }
+22% { transform: translate(26px, 30vh) rotate(194deg) scale(1.05); }
+33% { transform: translate(-36px, 46vh) rotate(300deg) scale(0.9); }
+44% { transform: translate(30px, 62vh) rotate(406deg) scale(1.03); }
+55% { transform: translate(-34px, 78vh) rotate(512deg) scale(0.88); }
+66% { transform: translate(28px, 94vh) rotate(618deg) scale(1.02); }
+77% { transform: translate(-32px, 110vh) rotate(724deg) scale(0.86); }
+88% { transform: translate(26px, 126vh) rotate(830deg) scale(0.96); }
+96% { opacity: 0.36; }
+100% { transform: translate(-28px, 135vh) rotate(936deg) scale(0.84); opacity: 0; }
 }
-
+/* Layer 6 - Nhóm tuyết */
 .all-movies-page[data-season="winter"] .movie-grid::before {
-  content: '❄️ ❄️';
-  position: fixed;
-  font-size: 35px;
-  top: -78px;
-  left: 15%;
-  letter-spacing: 50px;
-  animation: snowGroup1 16s linear infinite 4s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(0 0 12px rgba(135, 206, 235, 0.82));
-  opacity: 0;
+content: '❄️ ❄️';
+position: fixed;
+font-size: 39px;
+top: -92px;
+left: 14%;
+letter-spacing: 54px;
+animation: snowGroupFall1 18s linear infinite 5s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(0 0 16px rgba(135, 206, 235, 0.94)) brightness(1.13);
+opacity: 0;
 }
-
-@keyframes snowGroup1 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  25% { transform: translate(45px, 30vh) rotate(-150deg); }
-  50% { transform: translate(-35px, 60vh) rotate(-300deg); }
-  75% { transform: translate(40px, 90vh) rotate(-450deg); }
-  95% { opacity: 0.35; }
-  100% { transform: translate(-30px, 130vh) rotate(-600deg); opacity: 0; }
+@keyframes snowGroupFall1 {
+0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+4.2% { opacity: 1; }
+14% { transform: translate(35px, 17vh) rotate(-92deg); }
+28% { transform: translate(-30px, 36vh) rotate(-204deg); }
+42% { transform: translate(38px, 55vh) rotate(-316deg); }
+56% { transform: translate(-32px, 74vh) rotate(-428deg); }
+70% { transform: translate(36px, 93vh) rotate(-540deg); }
+84% { transform: translate(-34px, 112vh) rotate(-652deg); }
+96% { opacity: 0.38; }
+100% { transform: translate(32px, 135vh) rotate(-764deg); opacity: 0; }
 }
-
+/* Layer 7 */
 .all-movies-page[data-season="winter"] .movie-grid::after {
-  content: '❄️ ❄️';
-  position: fixed;
-  font-size: 33px;
-  top: -82px;
-  left: 55%;
-  letter-spacing: 60px;
-  animation: snowGroup2 18s linear infinite 7s;
-  pointer-events: none;
-  z-index: 100;
-  filter: drop-shadow(0 0 14px rgba(173, 216, 230, 0.88));
-  opacity: 0;
+content: '❄️ ❄️';
+position: fixed;
+font-size: 37px;
+top: -88px;
+left: 53%;
+letter-spacing: 62px;
+animation: snowGroupFall2 20s linear infinite 8.5s;
+pointer-events: none;
+z-index: 100;
+filter: drop-shadow(0 0 18px rgba(173, 216, 230, 0.96)) brightness(1.17);
+opacity: 0;
 }
-
-@keyframes snowGroup2 {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  5% { opacity: 1; }
-  20% { transform: translate(-48px, 27vh) rotate(160deg); }
-  40% { transform: translate(38px, 54vh) rotate(320deg); }
-  60% { transform: translate(-42px, 81vh) rotate(480deg); }
-  80% { transform: translate(35px, 108vh) rotate(640deg); }
-  95% { opacity: 0.3; }
-  100% { transform: translate(-32px, 130vh) rotate(800deg); opacity: 0; }
+@keyframes snowGroupFall2 {
+0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+3.8% { opacity: 1; }
+12% { transform: translate(-40px, 16vh) rotate(98deg); }
+24% { transform: translate(34px, 34vh) rotate(216deg); }
+36% { transform: translate(-42px, 52vh) rotate(334deg); }
+48% { transform: translate(36px, 70vh) rotate(452deg); }
+60% { transform: translate(-38px, 88vh) rotate(570deg); }
+72% { transform: translate(40px, 106vh) rotate(688deg); }
+84% { transform: translate(-36px, 124vh) rotate(806deg); }
+96% { opacity: 0.34; }
+100% { transform: translate(32px, 135vh) rotate(924deg); opacity: 0; }
 }
-
 /* ============================================
-   🎯 COMMON STYLES
-   ============================================ */
+🎯 COMMON STYLES
+============================================ */
 .all-movies-page > * {
-  position: relative;
-  z-index: 1;
+position: relative;
+z-index: 1;
 }
-
 /* ============================================
-   📝 PAGE TITLE - Màu theo mùa
-   ============================================ */
+📝 PAGE TITLE - Màu theo mùa
+============================================ */
 .all-movies-page h2 {
-  text-align: center;
-  font-size: 48px;
-  font-weight: 900;
-  margin: 40px 0 50px;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  position: relative;
-  animation: titleFloat 3s ease-in-out infinite;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+text-align: center;
+font-size: 48px;
+font-weight: 900;
+margin: 40px 0 50px;
+text-transform: uppercase;
+letter-spacing: 3px;
+position: relative;
+animation: titleFloat 3s ease-in-out infinite;
+filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
 }
-
 .all-movies-page[data-season="spring"] h2 {
-  background: linear-gradient(135deg, #ff69b4 0%, #ffb6c1 50%, #ffc0cb 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+background: linear-gradient(135deg, #ff69b4 0%, #ffb6c1 50%, #ffc0cb 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
 }
-
 .all-movies-page[data-season="summer"] h2 {
-  background: linear-gradient(135deg, #ff8c00 0%, #ffa500 50%, #ffd700 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+background: linear-gradient(135deg, #ff8c00 0%, #ffa500 50%, #ffd700 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
 }
-
 .all-movies-page[data-season="autumn"] h2 {
-  background: linear-gradient(135deg, #d2691e 0%, #cd853f 50%, #daa520 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+background: linear-gradient(135deg, #d2691e 0%, #cd853f 50%, #daa520 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
 }
-
 .all-movies-page[data-season="winter"] h2 {
-  background: linear-gradient(135deg, #4682b4 0%, #5f9ea0 50%, #87ceeb 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+background: linear-gradient(135deg, #4682b4 0%, #5f9ea0 50%, #87ceeb 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
 }
-
 @keyframes titleFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(-10px); }
 }
-
 /* ============================================
-   🎛️ FILTER WRAPPER - Màu theo mùa
-   ============================================ */
+🎛️ FILTER WRAPPER - Màu theo mùa
+============================================ */
 .filter-wrapper {
-  max-width: 1400px;
-  margin: 0 auto 60px;
-  padding: 35px;
-  border-radius: 25px;
-  backdrop-filter: blur(20px);
-  transition: all 0.4s ease;
-  border: 2px solid;
-  position: relative;
+max-width: 1400px;
+margin: 0 auto 60px;
+padding: 35px;
+border-radius: 25px;
+backdrop-filter: blur(20px);
+transition: all 0.4s ease;
+border: 2px solid;
+position: relative;
 }
-
 .all-movies-page[data-season="spring"] .filter-wrapper {
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.18), rgba(255, 192, 203, 0.12));
-  border-color: rgba(255, 105, 180, 0.35);
-  box-shadow: 0 20px 60px rgba(255, 105, 180, 0.25);
+background: linear-gradient(135deg, rgba(255, 182, 193, 0.18), rgba(255, 192, 203, 0.12));
+border-color: rgba(255, 105, 180, 0.35);
+box-shadow: 0 20px 60px rgba(255, 105, 180, 0.25);
 }
-
 .all-movies-page[data-season="summer"] .filter-wrapper {
-  background: linear-gradient(135deg, rgba(255, 200, 0, 0.18), rgba(255, 215, 0, 0.12));
-  border-color: rgba(255, 165, 0, 0.35);
-  box-shadow: 0 20px 60px rgba(255, 140, 0, 0.25);
+background: linear-gradient(135deg, rgba(255, 200, 0, 0.18), rgba(255, 215, 0, 0.12));
+border-color: rgba(255, 165, 0, 0.35);
+box-shadow: 0 20px 60px rgba(255, 140, 0, 0.25);
 }
-
 .all-movies-page[data-season="autumn"] .filter-wrapper {
-  background: linear-gradient(135deg, rgba(210, 105, 30, 0.18), rgba(184, 134, 11, 0.12));
-  border-color: rgba(210, 105, 30, 0.35);
-  box-shadow: 0 20px 60px rgba(139, 69, 19, 0.25);
+background: linear-gradient(135deg, rgba(210, 105, 30, 0.18), rgba(184, 134, 11, 0.12));
+border-color: rgba(210, 105, 30, 0.35);
+box-shadow: 0 20px 60px rgba(139, 69, 19, 0.25);
 }
+/* ============================================
+   🎬 ALL MOVIES - 4 MÙA TỰ ĐỘNG HOÀN CHỈNH
+   Phần còn lại từ .filter-wrapper winter
+   ============================================ */
 
 .all-movies-page[data-season="winter"] .filter-wrapper {
   background: linear-gradient(135deg, rgba(173, 216, 230, 0.18), rgba(135, 206, 235, 0.12));
@@ -1275,55 +1536,6 @@
 .movie-card:nth-child(6) { animation-delay: 0.3s; }
 
 /* ============================================
-   📱 RESPONSIVE
-   ============================================ */
-@media (max-width: 768px) {
-  .all-movies-page h2 {
-    font-size: 36px;
-    margin: 30px 0 40px;
-  }
-
-  .filter-wrapper {
-    padding: 25px 20px;
-    margin-bottom: 40px;
-  }
-
-  .filter-label {
-    font-size: 18px;
-  }
-
-  .filter-btn {
-    padding: 10px 20px;
-    font-size: 14px;
-  }
-
-  .movie-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 20px;
-  }
-
-  .see-more-btn {
-    padding: 16px 40px;
-    font-size: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .all-movies-page h2 {
-    font-size: 28px;
-  }
-
-  .movie-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-  }
-
-  .see-more-btn {
-    padding: 14px 35px;
-    font-size: 15px;
-  }
-}
-/* ============================================
    ❤️ FAVORITE ICON - Icon tim yêu thích
    ============================================ */
 
@@ -1469,8 +1681,39 @@
   animation-delay: 0.15s;
 }
 
-/* Responsive */
+/* ============================================
+   📱 RESPONSIVE
+   ============================================ */
 @media (max-width: 768px) {
+  .all-movies-page h2 {
+    font-size: 36px;
+    margin: 30px 0 40px;
+  }
+
+  .filter-wrapper {
+    padding: 25px 20px;
+    margin-bottom: 40px;
+  }
+
+  .filter-label {
+    font-size: 18px;
+  }
+
+  .filter-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .movie-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+  }
+
+  .see-more-btn {
+    padding: 16px 40px;
+    font-size: 16px;
+  }
+
   .favorite-btn {
     width: 36px;
     height: 36px;
@@ -1485,6 +1728,20 @@
 }
 
 @media (max-width: 480px) {
+  .all-movies-page h2 {
+    font-size: 28px;
+  }
+
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .see-more-btn {
+    padding: 14px 35px;
+    font-size: 15px;
+  }
+
   .favorite-btn {
     width: 32px;
     height: 32px;

@@ -213,8 +213,8 @@ const AllMovies = () => {
   return (
     <div className="all-movies-page" data-season={season}>
       <div style={{ height: "100px" }}></div>
-      
-      {/* Nút chọn mùa */}
+{/*       
+      Nút chọn mùa
       <div style={{
         textAlign: "center",
         marginBottom: "20px",
@@ -295,7 +295,7 @@ const AllMovies = () => {
         >
           ❄️ Mùa Đông
         </button>
-      </div>
+      </div> */}
 
       <h2>🎬 Danh sách phim</h2>
 

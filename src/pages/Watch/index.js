@@ -35,25 +35,27 @@ const WatchMovie = () => {
   const hasIncrementedViews = useRef(false);
 
   const getLastWatchedInfo = (movieId) => {
-    if (!user) return { part: 1, season: 1, episode: 1 };
-    
-    const key = `watchProgress_${user.id}_${movieId}`;
-    const saved = localStorage.getItem(key);
-    
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        return {
-          part: data.part || 1,
-          season: data.season || 1,
-          episode: data.episode || 1
-        };
-      } catch {
-        return { part: 1, season: 1, episode: 1 };
-      }
+  if (!user) return { part: 1, season: 1, episode: 1, currentTime: 0 };
+  
+  const key = `watchProgress_${user.id}_${movieId}`;
+  const saved = localStorage.getItem(key);
+  
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      return {
+        part: data.part || 1,
+        season: data.season || 1,
+        episode: data.episode || 1,
+        currentTime: data.currentTime || 0, // ⬅️ THÊM DÒNG NÀY
+        duration: data.duration || 0
+      };
+    } catch {
+      return { part: 1, season: 1, episode: 1, currentTime: 0 };
     }
-    return { part: 1, season: 1, episode: 1 };
-  };
+  }
+  return { part: 1, season: 1, episode: 1, currentTime: 0 };
+};
 
   const saveWatchedInfo = (movieId, info) => {
     if (!user) return;
@@ -129,47 +131,73 @@ const WatchMovie = () => {
     }
   }, [currentPart, currentSeason, currentEpisode, movie, user]);
 
-  useEffect(() => {
-    if (currentProgress && videoPlayerRef.current) {
-      setTimeout(() => {
-        console.log(`📺 Tiếp tục xem từ ${currentProgress.currentTime}s (${currentProgress.percentage}%)`);
-      }, 1000);
+ useEffect(() => {
+  if (currentProgress && videoPlayerRef.current) {
+    setTimeout(() => {
+      console.log(`📺 Tiếp tục xem từ ${currentProgress.currentTime}s (${currentProgress.percentage}%)`);
+      
+      // ⭐ TỰ ĐỘNG NHẢY ĐẾN THỜI GIAN ĐÃ XEM
+      const iframe = videoPlayerRef.current;
+      if (iframe && currentProgress.currentTime > 10) {
+        try {
+          // Thêm timestamp vào URL để player tự nhảy
+          const currentSrc = iframe.src;
+          if (currentSrc && !currentSrc.includes('?t=') && !currentSrc.includes('&t=')) {
+            const separator = currentSrc.includes('?') ? '&' : '?';
+            iframe.src = `${currentSrc}${separator}t=${Math.floor(currentProgress.currentTime)}`;
+          }
+        } catch (error) {
+          console.log('Không thể tự động nhảy thời gian:', error);
+        }
+      }
+    }, 1500);
+  }
+}, [currentProgress]);
+
+ useEffect(() => {
+  if (!user || !movie) return;
+
+  let simulatedTime = currentProgress?.currentTime || 0;
+  const duration = parseDuration(movie.duration);
+
+  progressIntervalRef.current = setInterval(() => {
+    simulatedTime += 10;
+
+    if (simulatedTime <= duration) {
+      const progressData = {
+        movieId: movie.id,
+        title: movie.title,
+        engTitle: movie.engTitle,
+        image: movie.image,
+        currentTime: simulatedTime,
+        duration: duration,
+        part: currentPart,
+        season: currentSeason,
+        episode: currentEpisode,
+        genre: movie.genre,
+        country: movie.country,
+        year: movie.year,
+      };
+      
+      autoSaveProgress(progressData);
+      
+      // ⭐ LƯU VÀO LOCALSTORAGE ĐỂ DÙNG CHO LẦN SAU
+      saveWatchedInfo(movie.id, {
+        part: currentPart,
+        season: currentSeason,
+        episode: currentEpisode,
+        currentTime: simulatedTime, // ⬅️ THÊM DÒNG NÀY
+        duration: duration
+      });
     }
-  }, [currentProgress]);
+  }, 10000);
 
-  useEffect(() => {
-    if (!user || !movie) return;
-
-    let simulatedTime = currentProgress?.currentTime || 0;
-    const duration = parseDuration(movie.duration);
-
-    progressIntervalRef.current = setInterval(() => {
-      simulatedTime += 10;
-
-      if (simulatedTime <= duration) {
-        autoSaveProgress({
-          movieId: movie.id,
-          title: movie.title,
-          engTitle: movie.engTitle,
-          image: movie.image,
-          currentTime: simulatedTime,
-          duration: duration,
-          part: currentPart,
-          season: currentSeason,
-          episode: currentEpisode,
-          genre: movie.genre,
-          country: movie.country,
-          year: movie.year,
-        });
-      }
-    }, 10000);
-
-    return () => {
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
-    };
-  }, [user, movie, currentPart, currentSeason, currentEpisode, currentProgress, autoSaveProgress]);
+  return () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+  };
+}, [user, movie, currentPart, currentSeason, currentEpisode, currentProgress, autoSaveProgress]);
 
   const parseDuration = (durationStr) => {
     if (!durationStr) return 3600;
